@@ -362,7 +362,8 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
-        i = (i << 2) + i + perturb + 1;
+        //i = (i << 2) + i + perturb + 1;
+        i = i + 1;
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
             return freeslot == NULL ? ep : freeslot;
@@ -440,7 +441,8 @@ lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
-        i = (i << 2) + i + perturb + 1;
+        //i = (i << 2) + i + perturb + 1;
+        i = i + 1;
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
             return freeslot == NULL ? ep : freeslot;
@@ -567,7 +569,8 @@ insertdict_clean(register PyDictObject *mp, PyObject *key, long hash,
     i = hash & mask;
     ep = &ep0[i];
     for (perturb = hash; ep->me_key != NULL; perturb >>= PERTURB_SHIFT) {
-        i = (i << 2) + i + perturb + 1;
+        //i = (i << 2) + i + perturb + 1;
+        i = i + 1;
         ep = &ep0[i & mask];
     }
     assert(ep->me_value == NULL);
