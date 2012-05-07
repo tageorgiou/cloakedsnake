@@ -361,9 +361,13 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
 
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
-    for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
-        //i = (i << 2) + i + perturb + 1;
+#ifdef LINEAR_PROBING
+    for (;;;) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
+#else
+    for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
+        i = (i << 2) + i + perturb + 1;
+#endif
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
             return freeslot == NULL ? ep : freeslot;
@@ -440,9 +444,13 @@ lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
 
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
-    for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
-        //i = (i << 2) + i + perturb + 1;
+#ifdef LINEAR_PROBING
+    for (;;;) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
+#else
+    for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
+        i = (i << 2) + i + perturb + 1;
+#endif
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
             return freeslot == NULL ? ep : freeslot;
@@ -568,9 +576,14 @@ insertdict_clean(register PyDictObject *mp, PyObject *key, long hash,
     MAINTAIN_TRACKING(mp, key, value);
     i = hash & mask;
     ep = &ep0[i];
-    for (perturb = hash; ep->me_key != NULL; perturb >>= PERTURB_SHIFT) {
-        //i = (i << 2) + i + perturb + 1;
+
+#ifdef LINEAR_PROBING
+    for (; ep->me_key != NULL;;) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
+#else
+    for (perturb = hash; ep->me_key != NULL; perturb >>= PERTURB_SHIFT) {
+        i = (i << 2) + i + perturb + 1;
+#endif
         ep = &ep0[i & mask];
     }
     assert(ep->me_value == NULL);
