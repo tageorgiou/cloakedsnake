@@ -362,7 +362,7 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
 #ifdef LINEAR_PROBING
-    for (;;;) { //should finish if there is an empty slot which due to size constraints we guarantee
+    while (1) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
 #else
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
@@ -445,7 +445,7 @@ lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
     /* In the loop, me_key == dummy is by far (factor of 100s) the
        least likely outcome, so test for that last. */
 #ifdef LINEAR_PROBING
-    for (;;;) { //should finish if there is an empty slot which due to size constraints we guarantee
+    while (1) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
 #else
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
@@ -578,7 +578,7 @@ insertdict_clean(register PyDictObject *mp, PyObject *key, long hash,
     ep = &ep0[i];
 
 #ifdef LINEAR_PROBING
-    for (; ep->me_key != NULL;;) { //should finish if there is an empty slot which due to size constraints we guarantee
+    while (ep->me_key != NULL) { //should finish if there is an empty slot which due to size constraints we guarantee
         i = i + 1;
 #else
     for (perturb = hash; ep->me_key != NULL; perturb >>= PERTURB_SHIFT) {

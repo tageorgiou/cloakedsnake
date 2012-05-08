@@ -1,14 +1,15 @@
 #!/bin/bash
 #finds all the file source files that contain the relevant ifdef
-make > bout
+make > clean-bout
 echo "built clean version"
 mv python python-clean
 
 ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
-echo $ifdef_flags
+flaglist=''
 for flag in $ifdef_flags
 do
   echo "processing $flag"
+  flaglist="-D$flag $flaglist"
   involvedfiles=`find -name *.c | xargs grep "$flag" | grep -o -E '^.*?:'| uniq | sed 's/://'`
   for f in $involvedfiles
   do
@@ -17,7 +18,8 @@ do
   done
 done
 
-make EXTRA_CFLAGS="-DLINEARPROBING" > profile-out/bout
+echo "Building optimized binary.  Flags are: $flaglist"
+EXTRA_CFLAGS="$flaglist" make > profile-out/opt-bout
 echo "built optimized version"
 mv python python-opt
 
