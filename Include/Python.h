@@ -1,5 +1,8 @@
 #ifndef Py_PYTHON_H
 #define Py_PYTHON_H
+#ifdef INSTRUMENT_DICT
+void printInstrumentDictStats();
+#endif
 /* Since this is a "meta-include" file, no #ifdef __cplusplus / extern "C" { */
 
 /* Include nearly all Python header files */
