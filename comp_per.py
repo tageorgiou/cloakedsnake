@@ -31,16 +31,17 @@ def diff_profile(f1, f2):
       final_results[key] = sum([percent_diff(r1, r2) for (r1, r2) in zip(r1Val,
         r2Val)]) / len(r1Val)
 
-      final_results[key] = percent_diff(r1Val[0], r2Val[0])
+  
+  #sort by percent difference
+  for key in sorted(final_results, key=final_results.get, reverse=True):
       print "%s:  %f%%" % (key, final_results[key])
 
   print "-----------"
   tot1 = tot1[0]
   tot2 = tot2[0]
+  print "Before opt: %f" % parse_time(tot1[2])
+  print "After opt: %f" % parse_time(tot2[2])
   print "Totals: %f%%" % percent_diff(parse_time(tot1[2]), parse_time(tot2[2]))
-
-
-
   
 def parse_time(t):
   if 'ms' in t:
@@ -51,7 +52,7 @@ def parse_time(t):
     return t
 
 def percent_diff(x1, x2):
-  return (x1-x2)/x1
+  return 100*(x1-x2)/x1
 
 if __name__ == "__main__":
   if len(sys.argv) == 3:

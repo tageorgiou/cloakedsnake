@@ -4,7 +4,19 @@ make > clean-bout
 echo "built clean version"
 mv python python-clean
 
-ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
+if [$# = 1]
+then
+  echo "No args.  Assuming running with all flags in IFDEF_LIST"
+  ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
+else
+  echo "Pulling flags from args"
+  for arg in "$@"
+  do 
+    ifdef_flags="$arg $ifdef_flags"
+  done
+fi
+
+
 flaglist=''
 for flag in $ifdef_flags
 do
@@ -29,4 +41,4 @@ echo "starting first benmark run"
 echo "starting second benmark run"
 ./python-opt Tools/pybench/pybench.py | tee profile-out/outputOptimized
 
-python comp_per.py profile-out/outputOptimized profile-out/outputNotOptimized
+python comp_per.py profile-out/outputNotOptimized profile-out/outputOptimized
