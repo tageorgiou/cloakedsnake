@@ -4,9 +4,11 @@ make > bout
 echo "built clean version"
 mv python python-clean
 
-ifdef_flags=`grep -o -E '^.*?:' | sed 's/://'`
-for flag in $if_def_flags
+ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
+echo $ifdef_flags
+for flag in $ifdef_flags
 do
+  echo "processing $flag"
   involvedfiles=`find -name *.c | xargs grep "$flag" | grep -o -E '^.*?:'| uniq | sed 's/://'`
   for f in $involvedfiles
   do
