@@ -149,6 +149,7 @@ _PyDict_Dummy(void)
 static PyDictEntry *
 lookdict_string(PyDictObject *mp, PyObject *key, long hash);
 
+
 #ifdef SHOW_CONVERSION_COUNTS
 static long created = 0L;
 static long converted = 0L;
@@ -316,6 +317,12 @@ NULL; this is the slot in the dict at which the key would have been found, and
 the caller can (if it wishes) add the <key, value> pair to the returned
 PyDictEntry*.
 */
+#ifdef INSTRUMENT_DICT
+//instrumentation
+static int nlookupcount = 0;
+static int nprobecount = 0;
+static int ncollisioncount = 0;
+#endif
 static PyDictEntry *
 lookdict(PyDictObject *mp, PyObject *key, register long hash)
 {
@@ -327,6 +334,10 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
     register PyDictEntry *ep;
     register int cmp;
     PyObject *startkey;
+#ifdef INSTRUMENT_DICT
+    nlookupcount++;
+    nprobecount++;
+#endif
 
     i = (size_t)hash & mask;
     ep = &ep0[i];
@@ -367,6 +378,10 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
 #else
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
         i = (i << 2) + i + perturb + 1;
+#endif
+#ifdef INSTRUMENT_DICT
+        nprobecount++;
+        ncollisioncount++;
 #endif
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
@@ -409,6 +424,12 @@ lookdict(PyDictObject *mp, PyObject *key, register long hash)
  *
  * This is valuable because dicts with only string keys are very common.
  */
+#ifdef INSTRUMENT_DICT
+//instrumentation
+static int slookupcount = 0;
+static int sprobecount = 0;
+static int scollisioncount = 0;
+#endif
 static PyDictEntry *
 lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
 {
@@ -430,6 +451,10 @@ lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
         mp->ma_lookup = lookdict;
         return lookdict(mp, key, hash);
     }
+#ifdef INSTRUMENT_DICT
+    slookupcount++;
+    sprobecount++;
+#endif
     i = hash & mask;
     ep = &ep0[i];
     if (ep->me_key == NULL || ep->me_key == key)
@@ -450,6 +475,10 @@ lookdict_string(PyDictObject *mp, PyObject *key, register long hash)
 #else
     for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
         i = (i << 2) + i + perturb + 1;
+#endif
+#ifdef INSTRUMENT_DICT
+        sprobecount++;
+        scollisioncount++;
 #endif
         ep = &ep0[i & mask];
         if (ep->me_key == NULL)
@@ -3232,3 +3261,14 @@ dictvalues_new(PyObject *dict)
 {
     return dictview_new(dict, &PyDictValues_Type);
 }
+
+#ifdef INSTRUMENT_DICT
+void printInstrumentDictStats() {
+    fprintf(stderr, "nlookupcount: %d\n", nlookupcount);
+    fprintf(stderr, "nprobecount: %d\n", nprobecount);
+    fprintf(stderr, "ncollisioncount: %d\n", ncollisioncount);
+    fprintf(stderr, "slookupcount: %d\n", slookupcount);
+    fprintf(stderr, "sprobecount: %d\n", sprobecount);
+    fprintf(stderr, "scollisioncount: %d\n", scollisioncount);
+}
+#endif

@@ -23,6 +23,10 @@
 #include <signal.h>
 #endif
 
+#ifdef INSTRUMENT_DICT
+#include <stdlib.h>
+#endif
+
 #ifdef MS_WINDOWS
 #include "malloc.h" /* for alloca */
 #endif
@@ -135,6 +139,10 @@ add_flag(int flag, const char *envs)
 void
 Py_InitializeEx(int install_sigs)
 {
+#ifdef INSTRUMENT_DICT
+    atexit(printInstrumentDictStats);
+#endif
+
     PyInterpreterState *interp;
     PyThreadState *tstate;
     PyObject *bimod, *sysmod;
