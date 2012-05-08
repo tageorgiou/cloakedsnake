@@ -29,4 +29,4 @@ echo "starting first benmark run"
 echo "starting second benmark run"
 ./python-opt Tools/pybench/pybench.py | tee profile-out/outputOptimized
 
-python comp_per.py profile-out/outputOptimized profile-out/outputNotOptimized
+python comp_per.py profile-out/outputNotOptimized profile-out/outputOptimized
