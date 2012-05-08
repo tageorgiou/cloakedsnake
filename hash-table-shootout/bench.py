@@ -9,6 +9,7 @@ programs = [
 #    'qt_qhash',
     'python_dict.lp',
     'python_dict.p0',
+    'python_dict.th',
 #    'ruby_hash',
 ]
 

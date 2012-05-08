@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include <stddef.h>
 
+#include <stdio.h>
+
 #ifdef COUNT_ALLOCS
 Py_ssize_t null_strings, one_strings;
 #endif
@@ -1785,12 +1787,13 @@ tabu_hash(long x)
     5084260422938985145, 4215010715967970833, 5892247993280444040, 133391250866483017, -3371157861726094879, -2869073230439768601, -7127779373723718841, -7476805253852639018, \
     4647334643109807767, -6673719853512078752, -2143208066357678445, -2269571886086041810, -3079258853726781944, -1890974696746813607, 3879016379648481483, 5571391560388465281, \
     -8102588772585215617, -5637332640712474815, 5921439885600697602, 6329210804630182547, -1492731580173564004, 4106024049561891228, -8853177965782720707};
-    short bytes[8];
+    unsigned short bytes[8];
     int i;
     for (i = 0; i < 8;i++)
     {
-        bytes[i] = x%256;
+        bytes[i] = (unsigned long)(x&(256-1));
         x = x>>8;
+        //printf("EEE %d\n",bytes[i]);
     }
     // for (i = 0; i<4;i++)
     // {
@@ -1827,14 +1830,18 @@ string_hash(PyStringObject *a)
     x ^= *p << 7;
     while (--len >= 0)
         x = (1000003*x) ^ *p++;
+
+#ifdef TABULATION
+    //printf("x:%ld\n", x);
+    x = tabu_hash(x);
+    //printf("t:%ld\n", x);
+#endif
+
     x ^= Py_SIZE(a);
     x ^= _Py_HashSecret.suffix;
     if (x == -1)
         x = -2;
     a->ob_shash = x;
-#ifdef TABULATION
-    return tabu_hash(x);
-#endif
     return x;
 }
 
