@@ -7,7 +7,8 @@ programs = [
 #    'google_sparse_hash_map',
 #    'google_dense_hash_map',
 #    'qt_qhash',
-    'python_dict',
+    'python_dict.lp',
+    'python_dict.p0',
 #    'ruby_hash',
 ]
 
@@ -41,7 +42,7 @@ for benchtype in benchtypes:
             fastest_attempt_data = ''
 
             for attempt in range(best_out_of):
-                proc = subprocess.Popen(['./build/'+program, str(nkeys), benchtype], stdout=subprocess.PIPE)
+                proc = subprocess.Popen(['./benches/'+program, str(nkeys), benchtype], stdout=subprocess.PIPE)
 
                 # wait for the program to fill up memory and spit out its "ready" message
                 try:
