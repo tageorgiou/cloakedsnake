@@ -4,7 +4,19 @@ make > clean-bout
 echo "built clean version"
 mv python python-clean
 
-ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
+if [$# = 1]
+then
+  echo "No args.  Assuming running with all flags in IFDEF_LIST"
+  ifdef_flags=`grep -o -E '^.*?:' IFDEF_LIST | sed 's/://'`
+else
+  echo "Pulling flags from args"
+  for arg in "$@"
+  do 
+    ifdef_flags="$arg $ifdef_flags"
+  done
+fi
+
+
 flaglist=''
 for flag in $ifdef_flags
 do

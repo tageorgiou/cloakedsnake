@@ -32,6 +32,7 @@ def diff_profile(f1, f2):
         r2Val)]) / len(r1Val)
 
   
+  #sort by percent difference
   for key in sorted(final_results, key=final_results.get, reverse=True):
       print "%s:  %f%%" % (key, final_results[key])
 
