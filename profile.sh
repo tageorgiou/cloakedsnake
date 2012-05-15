@@ -22,7 +22,7 @@ for flag in $ifdef_flags
 do
   echo "processing $flag"
   flaglist="-D$flag $flaglist"
-  involvedfiles=`find -name *.c | xargs grep "$flag" | grep -o -E '^.*?:'| uniq | sed 's/://'`
+  involvedfiles=`find -name *.c | xargs grep -l "$flag" | uniq`
   for f in $involvedfiles
   do
     touch $f
