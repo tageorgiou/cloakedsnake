@@ -1549,6 +1549,10 @@ long table7[256] = {
     return xored_table;
 }
 
+#ifdef TABULATION_MAIN
+#include "randtable.c"
+#endif
+
 static long
 string_hash(PyStringObject *a)
 {
@@ -1572,9 +1576,18 @@ string_hash(PyStringObject *a)
     }
     p = (unsigned char *) a->ob_sval;
     x = _Py_HashSecret.prefix;
+#ifdef TABULATION_MAIN
+    int counter = 0;
+    while (--len >= 0) {
+        long index = ((long)*p++) + (((counter++)&7)<<8);
+        //printf("%d, %ld\n", counter, index);
+        x = x ^ randtable[index];  //assume we are on a 64bit machine
+    }
+#else
     x ^= *p << 7;
     while (--len >= 0)
         x = (1000003*x) ^ *p++;
+#endif
 
 #ifdef TABULATION
     //printf("x:%ld\n", x);

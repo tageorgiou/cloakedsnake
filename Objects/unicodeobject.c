@@ -6525,6 +6525,7 @@ unicode_getitem(PyUnicodeObject *self, Py_ssize_t index)
     return (PyObject*) PyUnicode_FromUnicode(&self->str[index], 1);
 }
 
+#ifdef TABULATION
 long
 tabu_hash_unicode(long x)
 {
@@ -6816,6 +6817,13 @@ long table7[256] = {
     // printf("%d\n", xored_table);
     return xored_table;
 }
+#endif
+
+#ifdef TABULATION_MAIN
+//#include "randtable.c"
+extern long* randtable;
+#endif
+>>>>>>> Implement a new tabulation hashing code that does it inline with the string
 
 static long
 unicode_hash(PyUnicodeObject *self)
@@ -6846,9 +6854,18 @@ unicode_hash(PyUnicodeObject *self)
     }
     p = PyUnicode_AS_UNICODE(self);
     x = _Py_HashSecret.prefix;
+#ifdef TABULATION_MAIN
+    int counter = 0;
+    while (--len >= 0) {
+        long index = (((long)*p++)&255) + (((counter++)&7)<<8);
+        //printf("%d, %ld\n", counter, index);
+        x = x ^ randtable[index];  //assume we are on a 64bit machine
+    }
+#else
     x ^= *p << 7;
     while (--len >= 0)
         x = (1000003*x) ^ *p++;
+#endif
 
 #ifdef TABULATION
     //printf("x:%ld\n", x);
