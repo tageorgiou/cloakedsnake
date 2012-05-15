@@ -845,7 +845,7 @@ PyDict_SetItem(register PyObject *op, PyObject *key, PyObject *value)
      * Very large dictionaries (over 50K items) use doubling instead.
      * This may help applications with severe memory constraints.
      */
-    if (!(mp->ma_used > n_used && mp->ma_fill*3 >= (mp->ma_mask+1)*2))
+    if (!(mp->ma_used > n_used && mp->ma_fill*4 >= (mp->ma_mask+1)*2))
         return 0;
     return dictresize(mp, (mp->ma_used > 50000 ? 2 : 4) * mp->ma_used);
 }
@@ -2137,6 +2137,7 @@ static int
 dict_traverse(PyObject *op, visitproc visit, void *arg)
 {
     Py_ssize_t i = 0;
+
     PyObject *pk;
     PyObject *pv;
 
@@ -3282,6 +3283,27 @@ void printInstrumentDictStats() {
     fprintf(stderr, "slookupcount: %d\n", slookupcount);
     fprintf(stderr, "sprobecount: %d\n", sprobecount);
     fprintf(stderr, "scollisioncount: %d\n", scollisioncount);
+}
+
+void PyDict_outputDistribution(PyObject *op)
+{
+    register Py_ssize_t i;
+    register Py_ssize_t mask;
+    register PyDictEntry *ep;
+    FILE* out = fopen("/tmp/dictdistr","w");
+    ep = ((PyDictObject *)op)->ma_table;
+    mask = ((PyDictObject *)op)->ma_mask;
+    i = 0;
+    while (i < mask) {
+        if (ep[i].me_value == NULL) {
+            fprintf(out, "0");
+        } else {
+            fprintf(out, "1");
+        }
+        i++;
+    }
+    fprintf(out, "\n");
+    fclose(out);
 }
 #endif
 

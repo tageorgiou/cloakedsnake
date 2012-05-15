@@ -1286,7 +1286,7 @@ string_hash(PyStringObject *a)
     x = _Py_HashSecret.prefix;
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
-        register long index = (*p++) + ((len&7)<<8);
+        register long index = (*p++) + ((len&1)<<8);
         //if (Py_SIZE(a) == 6)
         //    printf("%d, %ld\n", len, index);
         x = x ^ randtable[index];  //assume we are on a 64bit machine

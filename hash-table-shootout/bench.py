@@ -9,11 +9,12 @@ programs = [
 #    'qt_qhash',
     'python_dict.lp',
     'python_dict.lpthm',
+    'python_dict.thm',
     'python_dict.p0',
 #    'ruby_hash',
 ]
 
-minkeys  =  2*1000*1000
+minkeys  =  1*1000*1000
 #maxkeys  = 40*1000*1000
 maxkeys  = 8*1000*1000
 interval =  2*1000*1000
