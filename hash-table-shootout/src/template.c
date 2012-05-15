@@ -80,6 +80,9 @@ int main(int argc, char ** argv)
 
     double after = get_time();
     printf("%f\n", after-before);
+
+    EXIT
+
     fflush(stdout);
     sleep(1000000);
 }
