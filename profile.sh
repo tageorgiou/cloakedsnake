@@ -1,5 +1,6 @@
 #!/bin/bash
 #finds all the file source files that contain the relevant ifdef
+echo "building clean version"
 make > clean-bout
 echo "built clean version"
 mv python python-clean

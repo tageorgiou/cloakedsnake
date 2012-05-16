@@ -5,7 +5,6 @@ collisions = {}
 total_probes = 0
 total_collisions = 0
 for i in range(int(dict_size * load_factor)):
-  vals[hash(str(i)) % dict_size] = [] 
   collisions[i] = 0
 
 for i in range(int(dict_size * load_factor)):
@@ -51,7 +50,6 @@ if current_chain > longest_chain:
   longest_chain = current_chain
 
 print "longest chain", longest_chain
-print "longest chain set", longest_chain_set[0: 50]
 print "average chain", float(average_chain_len) / num_chains
 #bar(range(dict_size), vals)
 #show()
