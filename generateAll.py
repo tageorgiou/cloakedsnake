@@ -5,6 +5,7 @@ versions = {
         'lp': '-DINSTRUMENT_DICT -DLINEAR_PROBING',
         'thm': '-DINSTRUMENT_DICT -DTABULATION_MAIN',
         'lpthm': '-DINSTRUMENT_DICT -DLINEAR_PROBING -DTABULATION_MAIN',
+#        'lpthmpf': '-DINSTRUMENT_DICT -DLINEAR_PROBING -DTABULATION_MAIN -fprofile-use',
 }
 
 def generateVersion(version):
