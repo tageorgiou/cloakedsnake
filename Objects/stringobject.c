@@ -1284,13 +1284,19 @@ string_hash(PyStringObject *a)
     }
     p = (unsigned char *) a->ob_sval;
     x = _Py_HashSecret.prefix;
+
+#ifndef TABLE_MASK
+//Changeable table masks
+#define TABLE_MASK 7
+#endif
+
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
-        register long index = (*p++) + ((len&7)<<8);
-        //if (Py_SIZE(a) == 6)
-        //    printf("%d, %ld\n", len, index);
+        register long index = (*p++) + ((len&TABLE_MASK)<<8);
+#ifdef TABULATION_PREFETCH
         __builtin_prefetch(&randtable[index], 0, 1);
         __builtin_prefetch(p, 0, 1);
+#endif
         x = x ^ randtable[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
