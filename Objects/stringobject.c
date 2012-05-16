@@ -1286,9 +1286,11 @@ string_hash(PyStringObject *a)
     x = _Py_HashSecret.prefix;
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
-        register long index = (*p++) + ((len&1)<<8);
+        register long index = (*p++) + ((len&7)<<8);
         //if (Py_SIZE(a) == 6)
         //    printf("%d, %ld\n", len, index);
+        __builtin_prefetch(&randtable[index], 0, 1);
+        __builtin_prefetch(p, 0, 1);
         x = x ^ randtable[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
