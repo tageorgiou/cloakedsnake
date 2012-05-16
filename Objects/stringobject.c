@@ -1294,10 +1294,10 @@ string_hash(PyStringObject *a)
     while (--len >= 0) {
         register long index = (*p++) + ((len&TABLE_MASK)<<8);
 #ifdef TABULATION_PREFETCH
-        __builtin_prefetch(&randtable[index], 0, 1);
+        __builtin_prefetch(&randlongtable[index], 0, 1);
         __builtin_prefetch(p, 0, 1);
 #endif
-        x = x ^ randtable[index];  //assume we are on a 64bit machine
+        x = x ^ randlongtable[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
 #else

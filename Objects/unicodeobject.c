@@ -6821,7 +6821,7 @@ long table7[256] = {
 
 #ifdef TABULATION_MAIN
 //#include "randtable.c"
-extern long* randtable;
+extern long* randlongtable;
 #endif
 
 static long
@@ -6857,7 +6857,7 @@ unicode_hash(PyUnicodeObject *self)
     while (--len >= 0) {
         long index = (((long)*p++)&255) + ((len&7)<<8);
         //printf("%d, %ld\n", counter, index);
-        x = x ^ randtable[index];  //assume we are on a 64bit machine
+        x = x ^ randlongtable[index];  //assume we are on a 64bit machine
     }
 #else
     x ^= *p << 7;
