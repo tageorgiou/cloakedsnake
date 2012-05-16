@@ -3283,6 +3283,7 @@ void printInstrumentDictStats() {
     fprintf(stderr, "slookupcount: %d\n", slookupcount);
     fprintf(stderr, "sprobecount: %d\n", sprobecount);
     fprintf(stderr, "scollisioncount: %d\n", scollisioncount);
+    fprintf(stderr, "chain-length: %f\n", sprobecount / (float)slookupcount);
 }
 
 void PyDict_outputDistribution(PyObject *op)
