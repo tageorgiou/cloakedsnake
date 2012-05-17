@@ -57,7 +57,7 @@ def test_ht(size, load_factor):
 
 def linprob_test():
   table_size = 1000000
-  load_factor = [.01, .05, .1, .2, .5, .75, .99]
+  load_factor = [.01, .05, .1, .2, .5, .75, .99,.999]
   print [(l, test_ht(table_size, l)[0]) for l in load_factor]
   print [(l, test_ht(table_size, l)[1]) for l in load_factor]
 
