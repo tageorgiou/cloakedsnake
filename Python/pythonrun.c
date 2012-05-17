@@ -141,6 +141,7 @@ Py_InitializeEx(int install_sigs)
 {
 #ifdef INSTRUMENT_DICT
     atexit(printInstrumentDictStats);
+    atexit(printInstrumentDictJsonStats);
 #endif
 
     PyInterpreterState *interp;

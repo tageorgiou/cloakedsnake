@@ -845,7 +845,7 @@ PyDict_SetItem(register PyObject *op, PyObject *key, PyObject *value)
      * Very large dictionaries (over 50K items) use doubling instead.
      * This may help applications with severe memory constraints.
      */
-    if (!(mp->ma_used > n_used && mp->ma_fill*4 >= (mp->ma_mask+1)*2))
+    if (!(mp->ma_used > n_used && mp->ma_fill*3 >= (mp->ma_mask+1)*2))
         return 0;
     return dictresize(mp, (mp->ma_used > 50000 ? 2 : 4) * mp->ma_used);
 }
@@ -3284,6 +3284,18 @@ void printInstrumentDictStats() {
     fprintf(stderr, "sprobecount: %d\n", sprobecount);
     fprintf(stderr, "scollisioncount: %d\n", scollisioncount);
     fprintf(stderr, "chain-length: %f\n", sprobecount / (float)slookupcount);
+}
+
+void printInstrumentDictJsonStats() {
+    fprintf(stdout, "{");
+    fprintf(stdout, "\"nlookupcount\": %d, ", nlookupcount);
+    fprintf(stdout, "\"nprobecount\": %d,", nprobecount);
+    fprintf(stdout, "\"ncollisioncount\": %d,", ncollisioncount);
+    fprintf(stdout, "\"slookupcount\": %d,", slookupcount);
+    fprintf(stdout, "\"sprobecount\": %d,", sprobecount);
+    fprintf(stdout, "\"scollisioncount\": %d,", scollisioncount);
+    fprintf(stdout, "\"chain-length\": %f", sprobecount / (float)slookupcount);
+    fprintf(stdout, "}\n");
 }
 
 void PyDict_outputDistribution(PyObject *op)
