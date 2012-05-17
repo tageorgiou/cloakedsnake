@@ -1261,6 +1261,10 @@ _PyString_Eq(PyObject *o1, PyObject *o2)
 #include "randtable.c"
 #endif
 
+#ifdef TABULATION_SHORT
+#include "randtable2.c"
+#endif
+
 static long
 string_hash(PyStringObject *a)
 {
@@ -1296,7 +1300,7 @@ string_hash(PyStringObject *a)
 
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
-        register long index = (*p++) + ((len&TABLE_MASK)<<8);
+        register long index = (*p++) | ((len&TABLE_MASK)<<8);
 #ifdef TABULATION_PREFETCH
         __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
         __builtin_prefetch(p, 0, 1);
@@ -1308,14 +1312,14 @@ string_hash(PyStringObject *a)
 
 #ifdef TABULATION_SHORT
     while (--len >= 0) {
-        register long index = (*p++) << 8;
-        if (--len >= 0) {
-            index &= (*p++);
-        index &= ((len&1)<<16);
-//#ifdef TABULATION_PREFETCH
-//        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
-//        __builtin_prefetch(p, 0, 1);
-//#endif
+        register long index = (*p++);
+        if (--len >= 0)
+            index |= (*p++) << 8;
+        index |= ((len&TABLE_MASK)<<16);
+#ifdef TABULATION_PREFETCH
+        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 0);
+        __builtin_prefetch(p, 0, 1);
+#endif
         x = x ^ RAND_TABLE_NAME[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
