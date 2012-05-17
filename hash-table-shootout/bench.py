@@ -7,18 +7,25 @@ programs = [
 #    'google_sparse_hash_map',
 #    'google_dense_hash_map',
 #    'qt_qhash',
-    'python_dict.lp',
+#    'python_dict.lp',
     'python_dict.lpthm',
-    'python_dict.thm',
-    'python_dict.p0',
+    'python_dict.lpthmint',
+#    'python_dict.lpthmpf',
+#    'python_dict.thm',
+#    'python_dict.p0',
 #    'ruby_hash',
+#    'python_dict.lpthm1',
+#    'python_dict.lpthm2',
+#    'python_dict.lpthm4',
+#    'python_dict.lpthm8',
+#    'python_dict.lpthm16',
 ]
 
-minkeys  =  1*1000*1000
+minkeys  =  2*1000*1000
 #maxkeys  = 40*1000*1000
-maxkeys  = 8*1000*1000
+maxkeys  = 4*1000*1000
 interval =  2*1000*1000
-best_out_of = 2
+best_out_of = 3
 
 # for the final run, use this:
 #minkeys  =  2*1000*1000
