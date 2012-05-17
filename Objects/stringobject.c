@@ -1290,20 +1290,41 @@ string_hash(PyStringObject *a)
 #define TABLE_MASK 7
 #endif
 
+#ifndef RAND_TABLE_NAME
+#define RAND_TABLE_NAME randlongtable
+#endif
+
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
         register long index = (*p++) + ((len&TABLE_MASK)<<8);
 #ifdef TABULATION_PREFETCH
-        __builtin_prefetch(&randlongtable[index], 0, 1);
+        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
         __builtin_prefetch(p, 0, 1);
 #endif
-        x = x ^ randlongtable[index];  //assume we are on a 64bit machine
+        x = x ^ RAND_TABLE_NAME[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
+#else
+
+#ifdef TABULATION_SHORT
+    while (--len >= 0) {
+        register long index = (*p++) << 8;
+        if (--len >= 0) {
+            index &= (*p++);
+        index &= ((len&1)<<16);
+//#ifdef TABULATION_PREFETCH
+//        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
+//        __builtin_prefetch(p, 0, 1);
+//#endif
+        x = x ^ RAND_TABLE_NAME[index];  //assume we are on a 64bit machine
+        //printf("%lx\n",x);
+    }
+
 #else
     x ^= *p << 7;
     while (--len >= 0)
         x = (1000003*x) ^ *p++;
+#endif
 #endif
 
     x ^= Py_SIZE(a);
