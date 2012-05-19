@@ -1258,7 +1258,11 @@ _PyString_Eq(PyObject *o1, PyObject *o2)
 }
 
 #ifdef TABULATION_MAIN
+#ifdef TABLE2
+#include "randtable2.c"
+#else
 #include "randtable.c"
+#endif
 #endif
 
 #ifdef TABULATION_SHORT

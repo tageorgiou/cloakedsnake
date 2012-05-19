@@ -14,7 +14,7 @@ programs = set(map(lambda l: l['program'], datapoints))
 #print benches
 #dictsizes = [2,4,6]
 
-lines = set(['python_dict.lpthm8', 'python_dict.lpths4', 'python_dict.lp',
+lines = set(['python_dict.lpthm8', 'python_dict.lpthm8t2', 'python_dict.lp',
 'python_dict.p0'])
 
 def plot_bench(benchname):
@@ -26,7 +26,8 @@ def plot_bench(benchname):
         if point['program'] not in lines:
             continue
         #results[point['program']].append(point['chain-length'])
-        results[point['program']].append(point['runtime'])
+        #results[point['program']].append(point['runtime'] / int(point['nkeys']))
+        results[point['program']].append(point['scollisioncount'] / int(point['nkeys']))
     print results
     ax = figure().add_subplot(111)
 
@@ -37,7 +38,7 @@ def plot_bench(benchname):
     ax.legend(loc=0)
     return ax
 
-plot_bench('sequential')
+plot_bench('sequentialstring')
 title('Sequential Integer Keys')
 #title('Random String Keys')
 #plot_bench('sequential')

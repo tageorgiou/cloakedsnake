@@ -19,6 +19,7 @@ programs = [
     #'python_dict.lpthm2',
     #'python_dict.lpthm4',
     'python_dict.lpthm8',
+    'python_dict.lpthm8t2',
     #'python_dict.lpthm16',
     #'python_dict.lpths2',
     #'python_dict.lpths4',
