@@ -19,5 +19,5 @@ typedef PyObject * hash_t;
         PyDict_DelItemString(hash, key); \
     } while(0)
 #define EXIT \
-    PyDict_outputDistribution(hash);
+    printInstrumentDictJsonStats();
 #include "template.c"

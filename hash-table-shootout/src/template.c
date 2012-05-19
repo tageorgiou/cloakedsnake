@@ -18,7 +18,7 @@ char * new_string_from_integer(int num)
 {
     int ndigits = num == 0 ? 1 : (int)log10(num) + 1;
     char * str = (char *)malloc(ndigits + 1);
-    sprintf(str, "%d", num);
+    sprintf(str, "%d", num, num);
     return str;
 }
 

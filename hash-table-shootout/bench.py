@@ -1,4 +1,4 @@
-import sys, os, subprocess, signal
+import sys, os, subprocess, signal, json
 
 programs = [
 #    'glib_hash_table',
@@ -8,21 +8,24 @@ programs = [
 #    'google_dense_hash_map',
 #    'qt_qhash',
 #    'python_dict.lp',
-    'python_dict.lpthm',
-    'python_dict.lpths',
-    'python_dict.lpthspf',
+#    'python_dict.lpthm',
+#    'python_dict.lpths',
+#    'python_dict.lpthspf',
 #    'python_dict.lpthmpf',
 #    'python_dict.thm',
     'python_dict.p0',
+    'python_dict.lp',
 #    'ruby_hash',
-#    'python_dict.lpthm1',
-#    'python_dict.lpthm2',
-#    'python_dict.lpthm4',
-#    'python_dict.lpthm8',
-#    'python_dict.lpthm16',
+    #'python_dict.lpthm2',
+    #'python_dict.lpthm4',
+    'python_dict.lpthm8',
+    #'python_dict.lpthm16',
+    #'python_dict.lpths2',
+    #'python_dict.lpths4',
+    #'python_dict.lpths8',
 ]
 
-minkeys  =  1*1000*1000
+minkeys  =  2*1000*1000
 #maxkeys  = 40*1000*1000
 maxkeys  = 4*1000*1000
 interval =  2*1000*1000
@@ -57,8 +60,10 @@ for benchtype in benchtypes:
                 # wait for the program to fill up memory and spit out its "ready" message
                 try:
                     runtime = float(proc.stdout.readline().strip())
-                except:
+                    data = json.loads(proc.stdout.readline())
+                except Exception as e:
                     runtime = 0
+                    data = {}
 
                 ps_proc = subprocess.Popen(['ps up %d | tail -n1' % proc.pid], shell=True, stdout=subprocess.PIPE)
                 nbytes = int(ps_proc.stdout.read().split()[4]) * 1024
@@ -68,11 +73,18 @@ for benchtype in benchtypes:
                 proc.wait()
 
                 if nbytes and runtime: # otherwise it crashed
-                    line = ','.join(map(str, [benchtype, nkeys, program, nbytes, "%0.6f" % runtime]))
+                    #line = ','.join(map(str, [benchtype, nkeys, program, nbytes, "%0.6f" % runtime]))
+                    line = data
+                    line['benchtype'] = benchtype
+                    line['nkeys'] = nkeys
+                    line['program'] = program
+                    line['nbytes'] = nbytes
+                    line['runtime'] = runtime
+
 
                     if runtime < fastest_attempt:
                         fastest_attempt = runtime
-                        fastest_attempt_data = line
+                        fastest_attempt_data = json.dumps(line)
 
             if fastest_attempt != 1000000:
                 print >> outfile, fastest_attempt_data
