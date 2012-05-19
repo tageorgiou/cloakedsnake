@@ -1,0 +1,8 @@
+nlookupcount: 1806410
+nprobecount: 15740330
+ncollisioncount: 13933920
+slookupcount: 372194313
+sprobecount: 484072822
+scollisioncount: 111878509
+chain-length: 1.300592
+
