@@ -84,11 +84,12 @@ Overall, the design of CPython dictionary is simple and is optimized for more co
 \section{Improvements}
 
 \subsection{Theoretical Results}
-Recently, Patrascu et al. [2] showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. They also showed some experimental evaluations which proved that simple tabulation on fixed input length can be fast and robust when used with linear probing and cuckoo hashing. 
+Recently, Patrascu et al. [2] showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
+bound for a truly random function. They also showed some experimental evaluations which proved that simple tabulation on fixed input length can be fast and robust when used with linear probing and cuckoo hashing. 
 
 Linear probing is appealing because of its excellent cache behavior in comparison to the probing scheme currently utilized in Python.  Consider the Intel Core 2 Duo processor with a 64 byte cache line.  Each Python dictionary entry is 12 bytes so when Python’s current probing scheme probes another slot, it is not in the current cache line so it has to pull another cache line in from memory, but with linear probing, that next slot is most likely in the current cache line.
 
-However, Patrascu et al. [2] describe simple tabulation hashing for fixed key widths.  We will need to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how we implement it.
+However, Patrascu et al. [2] describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
 
 \subsection{Implementation Details}
 We prepopulated random tables in memory with random bits from random.org, which sources randomness form atmospheric noise.
