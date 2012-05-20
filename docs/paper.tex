@@ -186,13 +186,17 @@ to do this.  However, this only yielded about a 1\% performance improvement.
 \section{Results}
 
 \subsection{Table Number Tuning}
-       
-We attempted to measure the 
-See Figure ~\ref{fig:tables}
+
+For simple tabulation hashing with variable length strings, we decided to use a
+fixed number of tables $N$ and round robin between them for every byte.  We
+found the optimal value of $N$ to be 8 experimentally.  We limited our choices
+to powers of 2 so that costly modulo operations could be avoided by using bit
+masks Figure ~\ref{fig:tables} shows the performance of different numbers of
+tabulation tables.  Eight turned out to be the sweetspot
  \begin{figure}[H]
    \centering
    \includegraphics[width=4in]{tables.pdf}
-   \caption{}
+   \caption{6000000 keys}
    \label{fig:tables}
  \end{figure}
        

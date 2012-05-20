@@ -25,8 +25,8 @@ char * new_string_from_integer(int num)
 char * new_string_from_long(long num)
 {
     long ndigits = num == 0 ? 1 : (long)log10(num) + 1;
-    char * str = (char *)malloc(ndigits + 1);
-    sprintf(str, "%ld", num, num);
+    char * str = (char *)malloc(2*ndigits + 1);
+    sprintf(str, "%ld %ld", num, num);
     return str;
 }
 
