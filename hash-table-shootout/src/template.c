@@ -18,7 +18,15 @@ char * new_string_from_integer(int num)
 {
     int ndigits = num == 0 ? 1 : (int)log10(num) + 1;
     char * str = (char *)malloc(ndigits + 1);
-    sprintf(str, "%d", num);
+    sprintf(str, "%d", num, num);
+    return str;
+}
+
+char * new_string_from_long(long num)
+{
+    long ndigits = num == 0 ? 1 : (long)log10(num) + 1;
+    char * str = (char *)malloc(ndigits + 1);
+    sprintf(str, "%ld", num, num);
     return str;
 }
 
@@ -59,14 +67,14 @@ int main(int argc, char ** argv)
     else if(!strcmp(argv[2], "sequentialstring"))
     {
         for(i = 0; i < num_keys; i++)
-            INSERT_STR_INTO_HASH(new_string_from_integer(i), value);
+            INSERT_STR_INTO_HASH(new_string_from_long(i), value);
     }
 
     else if(!strcmp(argv[2], "randomstring"))
     {
         srandom(1); // for a fair/deterministic comparison
         for(i = 0; i < num_keys; i++)
-            INSERT_STR_INTO_HASH(new_string_from_integer((int)random()), value);
+            INSERT_STR_INTO_HASH(new_string_from_long(random()), value);
     }
 
     else if(!strcmp(argv[2], "deletestring"))
