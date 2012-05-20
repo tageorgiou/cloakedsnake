@@ -399,9 +399,18 @@ change you make will probably end up making the hash function run slower.  That 
 
 \end{enumerate}
 
-In terms of future work, we have 2 avenues of attack. First, we could use different dictionaries for different purposes. Many of the Python dictionaries are small, and their keysets never change. No one is adding a new built-in function in the near future. 
+In terms of future work, we have 2 avenues of attack. First, we could use
+different dictionaries for different purposes. Many of the Python dictionaries
+are small, and their keysets never change. New built in functions are not added
+during the runtime of the program and thus they could use perfect hashing.
 
-Improve performance bottlenecks illustrated by benchmarks
+Second, we could improve the performance bottlenecks illustrated by benchmarks.
+These mainly consist of the extra time and memory bandwith and latency cost for
+computing simple tabulation hashing.  If we optimize the hashing further
+through more profiling, memory layout, and instruction order optimizing, we may
+be able to achieve more real world gains.  We could also look into applying a
+modifying of the perturbation trick currently used in Python for quadratic
+probing.
 
 
 Given the strong performance of simple tabulation hashing and the only downside
