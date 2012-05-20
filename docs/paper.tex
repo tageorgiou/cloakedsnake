@@ -315,6 +315,13 @@ Throughout the course of our work we came to the following conclusions:
 In terms of future work, we have 2 avenues of attack. First, we could use different dictionaries for different purposes. Many of the python dictionaries are small, and their keysets never change. No one is adding a new built-in function in the near future. 
 Improve performance bottlenecks illustrated by benchmarks
 
+
+Given the strong performance of simple tabulation hashing and the only downside
+being the cost of memory lookups, processor manufacturers should look into
+adding random tables into hardware as a ROM.  We found that for what we found
+optimal for Python, we only needed 16KB of randomness.  This would be a trivial
+cost in ROM given that processors have MBs of higher level caches nowadays.
+
 \appendix
 \section{Tornado Application}
 Sample Tornado 2.2.1 application used for benchmark:
