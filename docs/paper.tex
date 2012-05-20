@@ -9,6 +9,8 @@
 \date{\today}
 \documentclass[12pt]{article}
 \usepackage[pdftex]{graphicx}
+\usepackage{float}
+
 
 \begin{document}
 \maketitle
@@ -148,6 +150,12 @@ if __name__ == "__main__":
 Different request rates (up to 2000 requests per second) were tested on this sample server and their corresponding response rates were calculated using httpef, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. This finding followed by other benchmarks showed that the new implementation gives more consistent runtime on different iterations of a same code compared to the current CPython implementation. This consistency is a desired behavior. We suspect that this behavior is a result of the randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
 
 As mentioned before, another set of the benchmarks that we utilized were based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=12cm]{appsbench.pdf}
+  \caption{Prcentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
+\end{figure}
 
 % \begin{figure}[H]
 %   \centering
