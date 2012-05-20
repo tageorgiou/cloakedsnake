@@ -162,7 +162,7 @@ other slots which are not immediate neighbors and not necessarily in cache.
 \section{Improvements}
 
 \subsection{Theoretical Results}
-Recently, Patrascu et al. showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
+Recently, P\v{a}tra\c{s}cu et al. \cite{mihai} showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
 bound for a truly random function. They also showed some experimental evaluations which proved that simple tabulation on fixed input length can be fast and robust when used with linear probing and cuckoo hashing. 
 
 Linear probing is appealing because of its excellent cache behavior in
@@ -410,6 +410,23 @@ adding random tables into hardware as a ROM.  We found that for what we found
 optimal for Python, we only needed 16KB of randomness.  This would be a trivial
 cost in ROM given that processors have MBs of higher level caches nowadays.
 
+\begin{thebibliography}{10}
+
+\bibitem{mihai} Mihai P\v{a}tra\c{s}cu and Mikkel Thorup. The power of simple tabulation hashing. In \emph{Proc. of 43rd STOC}, 2011.
+
+\bibitem{python} Python Software Foundation \emph{},
+\texttt{http://python.org/} 2012.
+
+\bibitem{python} Nick Welch. Hash-table-shootout. 
+\texttt{https://github.com/mackstann/hash-table-shootout} 2012.
+
+
+\bibitem{python} Nicholas Piël. Benchmark of Python WSGI Servers. 
+
+\texttt{http://nichol.as/benchmark-of-python-web-servers} 2010.
+
+
+\end{thebibliography}
 \appendix
 \section{Tornado Application}
 Sample Tornado 2.2.1 application used for benchmark:
@@ -434,6 +451,7 @@ if __name__ == "__main__":
     main()
  \end{verbatim}
 \appendix
+
 
 \end{document}
 
