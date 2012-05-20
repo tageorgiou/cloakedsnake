@@ -22,10 +22,13 @@
 Here we implement simple tabulation hashing with linear probing in Python
 dictionary based on the recent theoretical result of P\v{a}tra\c{s}cu et al. Although
 we achieved significant performance wins on synthetic benchmarks, on real
-benchmarks our wins were only on the order of 4\%.  When viewed as a whole, the
+benchmarks our wins were only on the order of 4\% due to interpreter overhead.
+Linear probing with sample tabulation hashing does improve Python performance
+and should be looked at as a replacement scheme.  As a whole, the
 extra memory bandwidth
-and latency required to compute the simple tabulation hash are too large to
-justify the dictionary speedup garnered by switching to simple tabulation hashing and linear probing.
+and latency required to compute the simple tabulation hash negates some of the
+performance improvement, but if they were able to be further mitigated, the new scheme
+should provide more than a 4\% improvement, making it even more worthwhile.
 \end{abstract}
 
 
@@ -219,6 +222,9 @@ negligible compared to the performance improvement of different hash schemes.
 
 \section{Results}
 
+In order to analyze the result of this new dictionary we measured three main
+metrics. First, we compared the performance of the simple tabulation hashing
+with Python’s current hashing scheme on random and sequential strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 \subsection{Table Number Tuning}
 
 For simple tabulation hashing with variable length strings, we decided to use a
@@ -288,9 +294,8 @@ cache line first rather than jumping around.
 \end{figure}
 
 \subsection{Benchmarks}
-In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
-Because of the heavy utilization of dictionaries in Python internals one of the
-valuable benchmarks is to see how the new dictionary performs on them. We used
+Due to the heavy utilization of dictionaries in Python internals, one of the
+valuable benchmarks is to see how the new dictionary performs with them them. We used
 PyBench benchmark suite for this task. The results can be seen in Table
 ~\ref{pybenchtable}.  We saw significant improvements of around
 20\% in performance of some of the internals such as the special and normal
@@ -394,7 +399,11 @@ insertion already does, there is little room for error.  Improving hash
 performance with simple tabulation is not an easy task simply because any
 change you make will probably end up making the hash function run slower.  That said:
 
-\item Simple tabulation yields slightly faster and more consistent performance: With a careful implementation simple tabulation can yield increased hash performance on linear probing work loads. Simple tabulation definitely leads to shorter chain lengths, however, those shorter chain lengths don’t always justify the performance cost.
+\item Simple tabulation yields slightly faster and more consistent performance:
+With a careful implementation simple tabulation can yield increased hash
+performance on linear probing work loads. Simple tabulation definitely leads to
+shorter chain lengths, however, those shorter chain lengths don’t always
+justify the performance cost in all cases.
 
 \item Memory latency presents serious but workable issues.  Doing a look up in the simple-tabulation table \emph{requires} a random memory access, exactly what we were trying to avoid. With careful memory management we can maintain good performance, but a solution requires careful thought about cache sizes and special purpose compiler directives.
 
