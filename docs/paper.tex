@@ -20,7 +20,7 @@
 
 \begin{abstract}
 Here we implement simple tabulation hashing with linear probing in Python
-dictionary based on the recent theoretical result of Patrascu et al. Although
+dictionary based on the recent theoretical result of P\v{a}tra\c{s}cu et al. Although
 we achieved significant performance wins on synthetic benchmarks, on real
 benchmarks our wins were only on the order of 4\%.  When viewed as a whole, the
 extra memory bandwidth
@@ -173,7 +173,7 @@ entry is 12 bytes so when Python probes a dictionary slot, it pulls in at least
 probes another slot, it is not in the current cache line so it has to pull
 another cache line in from memory.  With linear probing, that next slot is most likely in the current cache line.
 
-Patrascu et al. [2] describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
+P\v{a}tra\c{s}cu et al. \cite{mihai} describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
 
 \subsection{Implementation Details}
 We modified the source code of CPython 2.7.3 to use simple tabulation hashing
