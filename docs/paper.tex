@@ -223,6 +223,12 @@ Eight tables provided the best performance.
    \caption{Sequential string performance}
    \label{fig:seqstring}
  \end{figure}
+ \begin{figure}[H]
+   \centering
+   \includegraphics[width=4in]{chainlength.pdf}
+   \caption{Simple tabulation hashing decreases the average chain length}
+   \label{fig:seqstring}
+ \end{figure}
 
 \subsection{Benchmarks}
 In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
