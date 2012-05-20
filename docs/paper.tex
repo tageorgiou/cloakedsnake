@@ -181,6 +181,9 @@ pseudo-random number generators.
     }
        \end{verbatim}
 
+To implement linear probing, we modified Python's dictionary code to start at
+the table entry defined by the hash value and then search sequentially until it
+finds the item it is looking for or an empty cell.
 \subsubsection{Optimizations}
 
 After implementation and profiling, we found that dictionary table lookups had
