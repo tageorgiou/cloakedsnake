@@ -1309,7 +1309,7 @@ string_hash(PyStringObject *a)
         __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
 //        __builtin_prefetch(p, 0, 0);
 #endif
-        x = x ^ RAND_TABLE_NAME[index];  //assume we are on a 64bit machine
+        x = x ^ (RAND_TABLE_NAME[index] >> len);  //assume we are on a 64bit machine
         //printf("%lx\n",x);
     }
 #else

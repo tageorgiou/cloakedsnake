@@ -20,7 +20,7 @@ programs = [
     #'python_dict.lpthm2',
     #'python_dict.lpthm4',
     'python_dict.lpthm8',
-#    'python_dict.lpthm8pf',
+    'python_dict.lpthm8pf',
 #    'python_dict.lpthm8t2',
     #'python_dict.lpthm16',
     #'python_dict.lpths2',
@@ -28,9 +28,9 @@ programs = [
     #'python_dict.lpths8',
 ]
 
-minkeys  =  1*1000*1000
+minkeys  =  2*1000*1000
 #maxkeys  = 40*1000*1000
-maxkeys  = 2*1000*1000
+maxkeys  = 6*1000*1000
 interval =  2*1000*1000
 best_out_of = 3
 
