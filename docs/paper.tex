@@ -181,6 +181,9 @@ pseudo-random number generators.
     }
        \end{verbatim}
 
+We also experimented with indexing using every pair of bytes in the string and
+using $2^16$ tabulation table entries.
+
 To implement linear probing, we modified Python's dictionary code to start at
 the table entry defined by the hash value and then search sequentially until it
 finds the item it is looking for or an empty cell.
@@ -193,7 +196,8 @@ data from the level 1 cache.  To fix this, we inserted x86 memory prefetch
 instructions into our hash code to tell the CPU's caching system that it should
 deprioritize storing it in cache.  We used GCC's
 \begin{tt}\_\_builtin\_prefetch(void \*addr, char rw, char locality)\end{tt}
-to do this.  However, this only yielded about a 1\% performance improvement.
+to do this.  However, this only yielded about a 1\% performance improvement,
+negligible compared to the performance improvement of different hash schemes.
 
 \section{Results}
 
@@ -204,31 +208,37 @@ fixed number of tables $N$ and round robin between them for every byte.  We
 found the optimal value of $N$ to be 8 experimentally.  We limited our choices
 to powers of 2 so that costly modulo operations could be avoided by using bit
 masks Figure ~\ref{fig:tables} shows the performance of different numbers of
-tabulation tables.  Eight turned out to be optimal.
+tabulation tables with both 1 and 2 byte indices.  Eight hash tables indexing
+every byte separately resulted in the best performance.    We believe this is due
+to the low entropy for fewer tables and too much memory bandwidth for a higher
+number of tables.  The optimal result may also be an artifact of the fact that
+we were using on the order of magnitude of thousands to millions of dictionary
+keys.  Our optimal result resulted 256 64
+bit table entries in each of 8 tables using 16KB of memory.
  \begin{figure}[H]
    \centering
-   \includegraphics[width=4in]{tables.pdf}
-   \caption{6000000 keys}
+   \includegraphics[width=4.1in]{tables.pdf}
+   \caption{Eight tabulation tables with 1 byte indices provides the best performance for a
+   dictionary with 6000000 keys}
    \label{fig:tables}
  \end{figure}
        
-Eight tables provided the best performance.
 
  \begin{figure}[H]
    \centering
-   \includegraphics[width=4in]{randstring.pdf}
+   \includegraphics[width=4.1in]{randstring.pdf}
    \caption{Random string performance}
    \label{fig:randstring}
  \end{figure}
  \begin{figure}[H]
    \centering
-   \includegraphics[width=4in]{seqstring.pdf}
+   \includegraphics[width=4.1in]{seqstring.pdf}
    \caption{Sequential string performance}
    \label{fig:seqstring}
  \end{figure}
  \begin{figure}[H]
    \centering
-   \includegraphics[width=4in]{chainlength.pdf}
+   \includegraphics[width=4.1in]{chainlength.pdf}
    \caption{Simple tabulation hashing decreases the average chain length}
    \label{fig:seqstring}
  \end{figure}
