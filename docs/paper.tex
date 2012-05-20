@@ -146,10 +146,21 @@ As mentioned before, another set of the benchmarks that we utilized were based o
 
 % \begin{figure}[H]
 %   \centering
+%   \includegraphics[width=160mm]{graphs/slowpickle.png}
+%   \caption{Python Pickle module benchmark. Min Iteration: changed from 0.705s to 0.681s: 1.04 times faster. Average iteration: changed from 0.710s to 0.686s: 1.04 times faster. Standard deviation of new implementation 2.0383 times smaller}
+% \end{figure}
+
+% \begin{figure}[H]
+%   \centering
 %   \includegraphics[width=160mm]{lr-10.png}
 %   \caption{}
 % \end{figure}
 
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=160mm]{lr-10.png}
+%   \caption{}
+% \end{figure}
 
 In a couple of the programs such as pure Python Pickle (an object serialization library) and html5lib (specification parser library) we calculated an improvement of \%3 to \%4. In other cases we did not calculate an speedup but at the same time we did not find any real-world case which the new implementation performs significantly slower. These results were consistent with the previous results of PyBench that showed about \%4.5 improvement.
  
