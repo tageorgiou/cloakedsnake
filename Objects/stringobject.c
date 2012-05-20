@@ -1304,10 +1304,10 @@ string_hash(PyStringObject *a)
 
 #ifdef TABULATION_MAIN
     while (--len >= 0) {
-        register long index = (*p++) | ((len&TABLE_MASK)<<8);
+        register long index = (*p++) | ((len&TABLE_MASK)<<7);
 #ifdef TABULATION_PREFETCH
-        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 1);
-        __builtin_prefetch(p, 0, 1);
+        __builtin_prefetch(&RAND_TABLE_NAME[index], 0, 2);
+//        __builtin_prefetch(p, 0, 0);
 #endif
         x = x ^ RAND_TABLE_NAME[index];  //assume we are on a 64bit machine
         //printf("%lx\n",x);

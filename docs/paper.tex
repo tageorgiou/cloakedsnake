@@ -7,7 +7,7 @@
         Pedram Razavi
 }
 \date{\today}
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
 
 \begin{document}
@@ -100,17 +100,26 @@ We prepopulated random tables in memory with random bits from random.org, which 
 
 \subsubsection{Optimizations}
 
-Cache       
+After implementation and profiling, we found that dictionary table lookups had
+over twice as many level 1 cache misses with tabulation hashing than without.
+Hypothesizing that the tabulation tables were evicting other, more relavant
+data from the level 1 cache.  To fix this, we inserted x86 memory prefetch
+instructions into our hash code to tell the CPU's caching system that it should
+deprioritize storing it in cache.  We used GCC's
+\begin{tt}\_\_builtin\_prefetch(void \*addr, char rw, char locality)\end{tt}
+to do this.  However, this only yielded about a 1\% performance improvement.
 
 \section{Results}
 
 \subsection{Table Number Tuning}
        
 We attempted to measure the 
+See Figure ~\ref{fig:tables}
  \begin{figure}[H]
    \centering
-   \includegraphics[width=5in]{tables.pdf}
+   \includegraphics[width=4in]{tables.pdf}
    \caption{}
+   \label{fig:tables}
  \end{figure}
        
 Eight tables provided the best performance.
