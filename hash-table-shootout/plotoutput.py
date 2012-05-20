@@ -14,7 +14,7 @@ programs = set(map(lambda l: l['program'], datapoints))
 #print benches
 #dictsizes = [2,4,6]
 
-lines = set(['python_dict.lpthm8', 'python_dict.lpthm8t2', 'python_dict.lp',
+lines = set(['python_dict.lpthm8','python_dict.lpthm8pf', 'python_dict.thm8', 'python_dict.lp',
 'python_dict.p0'])
 
 def plot_bench(benchname):
@@ -27,7 +27,8 @@ def plot_bench(benchname):
             continue
         #results[point['program']].append(point['chain-length'])
         #results[point['program']].append(point['runtime'] / int(point['nkeys']))
-        results[point['program']].append(point['scollisioncount'] / int(point['nkeys']))
+        #results[point['program']].append(point['scollisioncount'] / int(point['nkeys']))
+        results[point['program']].append(point['runtime'])
     print results
     ax = figure().add_subplot(111)
 
