@@ -11,6 +11,8 @@
 \usepackage[pdftex]{graphicx}
 \usepackage{setspace}
 \usepackage{fullpage}
+\usepackage{float}
+
 
 \begin{document}
 \maketitle
@@ -47,9 +49,19 @@ Take for example, the following code which we ran in the interpreter:
 10
 \end{verbatim}
 
-One of the features that we added to the python source was a conditional flag that allowed us to view dictionary statistics (collisions, probes, accesses, etc.) for a given invocation of the Python binary.  With that modification we were able to see that this code used 92 lookups in string dictionaries and 24 lookups in general purpose dictionaries for a total of 116 dictionary hits. 116 hits in a 3 line piece of code which never uses dictionaries explicitly is quite significant.  We explain this extensive dictionary usage below.
+One of the features that we added to the python source was a conditional flag
+that allowed us to view dictionary statistics (collisions, probes, accesses,
+etc.) for a given invocation of the Python binary.  With that modification we
+were able to see that this code used 92 lookups in string dictionaries and 24
+lookups in general purpose dictionaries for a total of 116 dictionary hits. 116
+hits in a 3 line piece of code which never uses dictionaries explicitly is quite
+significant.  We explain this extensive dictionary usage below.
 
-For instance, a dictionary can be instantiated to pass keyword arguments to a function. This means a dictionary could potentially be created and destroyed on every function call.  Some other examples of internal usage of dictionaries in Python are as follows:
+For instance, a dictionary can be instantiated to pass keyword arguments to a
+function. This means a dictionary could potentially be created and destroyed on
+every function call.  Some other examples of internal usage of dictionaries in
+Python are as follows:
+
 \begin{itemize}
 \item Class method lookup
 \item Instance attribute lookup and global variables lookup
@@ -57,17 +69,57 @@ For instance, a dictionary can be instantiated to pass keyword arguments to a fu
 \item Membership testing
 \end{itemize}
 
-Later in this paper, we compare the performance of our new dictionary implementation for some of these special cases. The aforementioned applications of the dictionaries further highlights the need for the fast instantiation and deletion of dictionaries so that less memory is utilized once running a program. Aside from the issue of memory usage, to further enhance the runtime of a program we need fast key/value storage and retrievals which is the main focus of this paper. Therefore it becomes clear that a better dictionary structure will have significant effects on total Python performance.
+Later in this paper, we compare the performance of our new dictionary
+implementation for some of these special cases. The aforementioned applications
+of the dictionaries further highlights the need for the fast instantiation and
+deletion of dictionaries so that less memory is utilized once running a program.
+Aside from the issue of memory usage, to further enhance the runtime of a
+program we need fast key/value storage and retrievals which is the main focus of
+this paper. Therefore it becomes clear that a better dictionary structure will
+have significant effects on total Python performance.
 
 \section{Current Python Implementation}
 
-In this section we give a brief overview of the key implementation details of dictionaries in CPython 2.7.3.
-We should note that Python’s dictionary supports several different data types as keys. However as we noted earlier, the dictionaries underlying class instances and modules have only strings as keys. Therefore optimizing a dictionary which have string-only keys is crucial to the runtime of any Python program. CPython accommodates for this optimization by changing its dictionary lookup method as necessary. First when a dictionary is instantiated, CPython uses a string-only lookup function until a search for non-string is requested, in this case CPython falls back to a more general lookup method and uses this general function onward. There are two main optimizations in the string-only lookup function. First, since the string comparisons do not raise any exceptions by design, some of the error checking logic can been removed. Second, the string-only lookup function can skip the rich set of comparisons ( <=, >=, <, >, ==, !=) which arbitrary data types can provide since string type does not have these special cases.  As it can be seen, string-only keys can dominate the runtime of a dictionary and CPython uses some measures to optimize for this common case. Because of this importance we mostly limit ourselves to the study of new implementations of hashing the string type for the rest of the paper.
+In this section we give a brief overview of the key implementation details of
+dictionaries in CPython 2.7.3.  We should note that Python’s dictionary supports
+several different data types as keys. However as we noted earlier, the
+dictionaries underlying class instances and modules have only strings as keys.
+Therefore optimizing a dictionary which have string-only keys is crucial to the
+runtime of any Python program. CPython accommodates for this optimization by
+changing its dictionary lookup method as necessary. First when a dictionary is
+instantiated, CPython uses a string-only lookup function until a search for
+non-string is requested, in this case CPython falls back to a more general
+lookup method and uses this general function onward. There are two main
+optimizations in the string-only lookup function.  First, since the string
+comparisons do not raise any exceptions by design, some of the error checking
+logic can been removed. Second, the string-only lookup function can skip the
+rich set of comparisons ( $<=$, $>=$, $<$, $>$, $==$, $!=$) which arbitrary data
+types can provide since string type does not have these special cases.  As it
+can be seen, string-only keys can dominate the runtime of a dictionary and
+CPython uses some measures to optimize for this common case. Because of this
+importance we mostly limit ourselves to the study of new implementations of
+hashing the string type for the rest of the paper.
 
-The current CPython dictionary implementation uses an iterative XORed polynomial terms for calculating the hash of the strings. In this implementation the hash value for sequential strings differ only in the least significant bits, for instance: hash("6.851") = 7824665118634166871 and hash("6.852") = 7824665118634166868. This behavior gives good results for sequential strings which is a common case. When the table size is $2^i$ taking the least significant $i$ bits as the index can populate the table without a lot of collisions. This approach gives a better than random results in this case and is also simple and fast to compute.
+The current CPython dictionary implementation uses an iterative XORed polynomial
+terms for calculating the hash of the strings. In this implementation the hash
+value for sequential strings differ only in the least significant bits, for
+instance: hash("6.851") = 7824665118634166871 and hash("6.852") =
+7824665118634166868. This behavior gives good results for sequential strings
+which is a common case. When the table size is $2^i$ taking the least
+significant $i$ bits as the index can populate the table without a lot of
+collisions. This approach gives a better than random results in this case and is
+also simple and fast to compute.
 
-On the other hand this hashing strategy has the tendency to fill contiguous slots of the
-hash table. CPython tries to solve this behavior by utilizing a good collision resolution strategy. The collision resolution strategy currently used is open addressing with a custom non-linear probing scheme. In this scheme CPython uses quadratic probing based on this function: $j = (5j + 1) \bmod 2^i$ where $0<j<2^i-1$. This recurrence alone is not enough for a better behavior since again it behaves the same as linear-probing for some keys since it scans the table entries in a fixed order. To overcome this issue CPython also uses the most significant bits of the hash value with the following code snippet:
+On the other hand this hashing strategy has the tendency to fill contiguous
+slots of the hash table. CPython tries to solve this behavior by utilizing a
+good collision resolution strategy. The collision resolution strategy currently
+used is open addressing with a custom non-linear probing scheme. In this scheme
+CPython uses quadratic probing based on this function: $j = (5j + 1) \bmod 2^i$
+where $0<j<2^i-1$. This recurrence alone is not enough for a better behavior
+since again it behaves the same as linear-probing for some keys since it scans
+the table entries in a fixed order. To overcome this issue CPython also uses the
+most significant bits of the hash value with the following code snippet:
+
 \begin{verbatim}
 slot = hash;
 perturb = hash;
@@ -76,11 +128,29 @@ while (<slot is full> && <item in slot does not equal the key>) {
        perturb >>= 5;
 }
 \end{verbatim}
-Based on this new method the probe sequence will depend on nearly all the bits of a hash value. We should note that the value of  perturb shift (currently 5) is crucial for a good probing behavior. Since it should be small enough so that  all the significant bits have an  effect on the probe sequence but at the same time it should be large enough so that in really bad cases the high-order hash bits can affect the earlier iterations.
 
-CPython initializes its table with 8 slots. The resizing strategy is based on a load factor invariant. Whenever there are $n$ keys in the dictionary, there must be at least $3n/2$ slots in the table. This load factor is to keep the table sparse and put a bound on the number of collisions that can happen. CPython resizes the size of table whenever the load factor invariant gets violated. It quadruples the size when there are less than 50,000 keys in the table and doubles the size otherwise. 
+Based on this new method the probe sequence will depend on nearly all the bits
+of a hash value. We should note that the value of  perturb shift (currently 5)
+is crucial for a good probing behavior. Since it should be small enough so that
+all the significant bits have an  effect on the probe sequence but at the same
+time it should be large enough so that in really bad cases the high-order hash
+bits can affect the earlier iterations.
 
-Overall, the design of CPython dictionary is simple and is optimized for more common cases such as sequential strings. Since it utilizes quadratic probing with perturbation, even if a data type does not provide a good hash function, the table still gets populated with with short chain lengths.  On the other hand there are some behaviors which can be improved. For instance there is a bad cache locality because for probing a slot the table might need to jump to the other slots which are not immediate neighbors and not necessarily in cache. 
+CPython initializes its table with 8 slots. The resizing strategy is based on a
+load factor invariant. Whenever there are $n$ keys in the dictionary, there must
+be at least $3n/2$ slots in the table. This load factor is to keep the table
+sparse and put a bound on the number of collisions that can happen. CPython
+resizes the size of table whenever the load factor invariant gets violated. It
+quadruples the size when there are less than 50,000 keys in the table and
+doubles the size otherwise. 
+
+Overall, the design of CPython dictionary is simple and is optimized for more
+common cases such as sequential strings. Since it utilizes quadratic probing
+with perturbation, even if a data type does not provide a good hash function,
+the table still gets populated with with short chain lengths.  On the other hand
+there are some behaviors which can be improved. For instance there is a bad
+cache locality because for probing a slot the table might need to jump to the
+other slots which are not immediate neighbors and not necessarily in cache. 
 
 \section{Improvements}
 
@@ -110,6 +180,11 @@ Cache
 \subsection{Table Number Tuning}
        
 We attempted to measure the 
+ \begin{figure}[H]
+   \centering
+   \includegraphics[width=5in]{tables.pdf}
+   \caption{}
+ \end{figure}
        
 Eight tables provided the best performance.
 \subsection{Benchmarks}
@@ -176,12 +251,29 @@ Different request rates (up to 2000 requests per second) were tested on this sam
 
 As mentioned before, another set of the benchmarks that we utilized were based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=12cm]{appsbench.pdf}
+  \caption{Prcentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=12cm]{slowpickle.png}
+  \caption{Python Pickle module benchmark. Minimum Iteration: changed from 0.705s to 0.681s: 1.04 times faster. Average iteration: changed from 0.710s to 0.686s: 1.04 times faster. Standard deviation of new implementation 2.0383 times smaller}
+\end{figure}
+
 % \begin{figure}[H]
 %   \centering
 %   \includegraphics[width=160mm]{lr-10.png}
 %   \caption{}
 % \end{figure}
 
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=160mm]{lr-10.png}
+%   \caption{}
+% \end{figure}
 
 In a couple of the programs such as pure Python Pickle (an object serialization library) and html5lib (specification parser library) we calculated an improvement of \%3 to \%4. In other cases we did not calculate an speedup but at the same time we did not find any real-world case which the new implementation performs significantly slower. These results were consistent with the previous results of PyBench that showed about \%4.5 improvement.
  
