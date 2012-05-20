@@ -1,0 +1,160 @@
+Running 2to3...
+INFO:root:Running test/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['test/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+INFO:root:Running control/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['control/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+Running django...
+INFO:root:Running test/bin/python performance/bm_django.py -n 100
+INFO:root:Running control/bin/python performance/bm_django.py -n 100
+Running nbody...
+INFO:root:Running test/bin/python performance/bm_nbody.py -n 100
+INFO:root:Running control/bin/python performance/bm_nbody.py -n 100
+Running slowpickle...
+INFO:root:Running test/bin/python performance/bm_pickle.py -n 100 pickle
+INFO:root:Running control/bin/python performance/bm_pickle.py -n 100 pickle
+Running slowspitfire...
+INFO:root:Running test/bin/python performance/bm_spitfire.py -n 100 --disable_psyco
+INFO:root:Running control/bin/python performance/bm_spitfire.py -n 100 --disable_psyco
+Running slowunpickle...
+INFO:root:Running test/bin/python performance/bm_pickle.py -n 100 unpickle
+INFO:root:Running control/bin/python performance/bm_pickle.py -n 100 unpickle
+Running spambayes...
+INFO:root:Running test/bin/python performance/bm_spambayes.py -n 100
+INFO:root:Running control/bin/python performance/bm_spambayes.py -n 100
+
+Report on Darwin Pedi.local 11.4.0 Darwin Kernel Version 11.4.0: Mon Apr  9 19:32:15 PDT 2012; root:xnu-1699.26.8~1/RELEASE_X86_64 x86_64 i386
+Total CPU cores: 2
+
+### slowpickle ###
+Min: 0.708808 -> 0.684639: 1.04x faster
+Avg: 0.750039 -> 0.719307: 1.04x faster
+Significant (t=3.57)
+Stddev: 0.06938 -> 0.05108: 1.3582x smaller
+Timeline: http://tinyurl.com/8yxgx6n
+
+The following not significant results are hidden, use -v to show them:
+2to3, django, nbody, slowspitfire, slowunpickle, spambayes.
+benchmarks$ python perf.py -v -r -b default control/bin/python test/bin/python
+Running 2to3...
+INFO:root:Running test/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['test/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+INFO:root:Running control/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['control/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+Running django...
+INFO:root:Running test/bin/python performance/bm_django.py -n 100
+INFO:root:Running control/bin/python performance/bm_django.py -n 100
+Running nbody...
+INFO:root:Running test/bin/python performance/bm_nbody.py -n 100
+INFO:root:Running control/bin/python performance/bm_nbody.py -n 100
+Running slowpickle...
+INFO:root:Running test/bin/python performance/bm_pickle.py -n 100 pickle
+INFO:root:Running control/bin/python performance/bm_pickle.py -n 100 pickle
+Running slowspitfire...
+INFO:root:Running test/bin/python performance/bm_spitfire.py -n 100 --disable_psyco
+INFO:root:Running control/bin/python performance/bm_spitfire.py -n 100 --disable_psyco
+Running slowunpickle...
+INFO:root:Running test/bin/python performance/bm_pickle.py -n 100 unpickle
+INFO:root:Running control/bin/python performance/bm_pickle.py -n 100 unpickle
+Running spambayes...
+INFO:root:Running test/bin/python performance/bm_spambayes.py -n 100
+INFO:root:Running control/bin/python performance/bm_spambayes.py -n 100
+
+Report on Darwin Pedi.local 11.4.0 Darwin Kernel Version 11.4.0: Mon Apr  9 19:32:15 PDT 2012; root:xnu-1699.26.8~1/RELEASE_X86_64 x86_64 i386
+Total CPU cores: 2
+
+### 2to3 ###
+Min: 13.852841 -> 13.635534: 1.02x faster
+Avg: 13.863400 -> 13.682136: 1.01x faster
+Not significant
+Stddev: 0.01336 -> 0.05835: 4.3683x larger
+Timeline: http://tinyurl.com/7b9vqjf
+
+### django ###
+Min: 0.980197 -> 0.971828: 1.01x faster
+Avg: 0.986282 -> 0.980268: 1.01x faster
+Not significant
+Stddev: 0.00645 -> 0.00699: 1.0837x larger
+Timeline: http://tinyurl.com/7apwvb2
+
+### nbody ###
+Min: 0.464651 -> 0.472600: 1.02x slower
+Avg: 0.469799 -> 0.478750: 1.02x slower
+Not significant
+Stddev: 0.00698 -> 0.00698: 1.0001x larger
+Timeline: http://tinyurl.com/872s99n
+
+### slowpickle ###
+Min: 0.708739 -> 0.683673: 1.04x faster
+Avg: 0.715852 -> 0.688941: 1.04x faster
+Significant (t=20.71)
+Stddev: 0.01211 -> 0.00471: 2.5684x smaller
+Timeline: http://tinyurl.com/cfufn3k
+
+### slowspitfire ###
+Min: 0.664027 -> 0.659298: 1.01x faster
+Avg: 0.676212 -> 0.675021: 1.00x faster
+Not significant
+Stddev: 0.01495 -> 0.01086: 1.3764x smaller
+Timeline: http://tinyurl.com/6ncgrs6
+
+### slowunpickle ###
+Min: 0.336490 -> 0.338825: 1.01x slower
+Avg: 0.340526 -> 0.343024: 1.01x slower
+Not significant
+Stddev: 0.00506 -> 0.00538: 1.0649x larger
+Timeline: http://tinyurl.com/86pm94c
+
+### spambayes ###
+Min: 0.332862 -> 0.327862: 1.02x faster
+Avg: 0.340018 -> 0.471723: 1.39x slower
+Not significant
+Stddev: 0.00992 -> 1.04554: 105.4309x larger
+Timeline: http://tinyurl.com/6npkygr
+benchmarks$ python perf.py -v -r -b apps control/bin/python test/bin/python
+Running 2to3...
+INFO:root:Running test/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['test/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+INFO:root:Running control/bin/python lib/2to3/2to3 -f all lib/2to3_data
+INFO:root:Running `['control/bin/python', 'lib/2to3/2to3', '-f', 'all', 'lib/2to3_data']` 5 times
+Running html5lib...
+INFO:root:Running test/bin/python performance/bm_html5lib.py -n 1
+INFO:root:Running `['test/bin/python', 'performance/bm_html5lib.py', '-n', '1']` 10 times
+INFO:root:Running control/bin/python performance/bm_html5lib.py -n 1
+INFO:root:Running `['control/bin/python', 'performance/bm_html5lib.py', '-n', '1']` 10 times
+Running rietveld...
+INFO:root:Running test/bin/python performance/bm_rietveld.py -n 100
+INFO:root:Running control/bin/python performance/bm_rietveld.py -n 100
+Running spambayes...
+INFO:root:Running test/bin/python performance/bm_spambayes.py -n 100
+INFO:root:Running control/bin/python performance/bm_spambayes.py -n 100
+
+Report on Darwin Pedi.local 11.4.0 Darwin Kernel Version 11.4.0: Mon Apr  9 19:32:15 PDT 2012; root:xnu-1699.26.8~1/RELEASE_X86_64 x86_64 i386
+Total CPU cores: 2
+
+### 2to3 ###
+Min: 13.946419 -> 13.723046: 1.02x faster
+Avg: 14.033497 -> 13.779932: 1.02x faster
+Not significant
+Stddev: 0.07452 -> 0.07019: 1.0616x smaller
+Timeline: http://tinyurl.com/88fyo3r
+
+### html5lib ###
+Min: 15.484646 -> 15.203590: 1.02x faster
+Avg: 15.756838 -> 15.284146: 1.03x faster
+Significant (t=7.19)
+Stddev: 0.20037 -> 0.05595: 3.5815x smaller
+Timeline: http://tinyurl.com/cl8jqbl
+
+### rietveld ###
+Min: 0.561842 -> 0.551878: 1.02x faster
+Avg: 0.593491 -> 0.604635: 1.02x slower
+Not significant
+Stddev: 0.03289 -> 0.06800: 2.0675x larger
+Timeline: http://tinyurl.com/6rwt7op
+
+### spambayes ###
+Min: 0.334402 -> 0.328494: 1.02x faster
+Avg: 0.350153 -> 0.343706: 1.02x faster
+Not significant
+Stddev: 0.01889 -> 0.01730: 1.0922x smaller
+Timeline: http://tinyurl.com/7dwws6x

@@ -2,6 +2,7 @@
 #define Py_PYTHON_H
 #ifdef INSTRUMENT_DICT
 void printInstrumentDictStats();
+void printInstrumentDictJsonStats();
 #endif
 /* Since this is a "meta-include" file, no #ifdef __cplusplus / extern "C" { */
 

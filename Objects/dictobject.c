@@ -3286,6 +3286,18 @@ void printInstrumentDictStats() {
     fprintf(stderr, "chain-length: %f\n", sprobecount / (float)slookupcount);
 }
 
+void printInstrumentDictJsonStats() {
+    fprintf(stdout, "{");
+    fprintf(stdout, "\"nlookupcount\": %d, ", nlookupcount);
+    fprintf(stdout, "\"nprobecount\": %d,", nprobecount);
+    fprintf(stdout, "\"ncollisioncount\": %d,", ncollisioncount);
+    fprintf(stdout, "\"slookupcount\": %d,", slookupcount);
+    fprintf(stdout, "\"sprobecount\": %d,", sprobecount);
+    fprintf(stdout, "\"scollisioncount\": %d,", scollisioncount);
+    fprintf(stdout, "\"chain-length\": %f", sprobecount / (float)slookupcount);
+    fprintf(stdout, "}\n");
+}
+
 void PyDict_outputDistribution(PyObject *op)
 {
     register Py_ssize_t i;
