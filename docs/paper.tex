@@ -239,27 +239,7 @@ Because of the heavy utilization of dictionaries in Python internals one of the 
 
 PyBench showed the performance difference in each of the individual CPython internals however for a more realistic picture of the performance in real world programs more extensive benchmarking of the new implementation was needed. Especially since we wanted to know the frequency of the different CPython internals in real-world applications and therefore the corresponding runtime changes. The new implementation was tested on several standard real world programs such as Tornado web server, Django web framework, html5lib and nearly 10 other real-world programs. 
 
-We were interested to calculate if the new implementation of dictionary can handle more requests in a Python web server compared to the current CPython implementation. We chose Tornado web server for this task since most of the code is written in pure Python. An instance of Tornado server was run in a virtual machine with one assigned processor. The following code[http://nichol.as/benchmark-of-python-web-servers] was used as a sample Tornado application:
- \begin{verbatim}
-import tornado.httpserver
-import tornado.ioloop
-import tornado.wsgi
-
-def application(environ, start_response):
-    status = '200 OK'
-    output = 'Pong!' 
-    response_headers = [('Content-type', 'text/plain'),
-        ('Content-Length', str(len(output)))]
-    start_response(status, response_headers)
-    return [output]
-def main():
-    container = tornado.wsgi.WSGIContainer(application)
-    http_server = tornado.httpserver.HTTPServer(container)
-    http_server.listen(8000)
-    tornado.ioloop.IOLoop.instance().start()
-if __name__ == "__main__":
-    main()
- \end{verbatim}
+We were interested to calculate if the new implementation of dictionary can handle more requests in a Python web server compared to the current CPython implementation. We chose Tornado web server for this task since most of the code is written in pure Python. An instance of Tornado server was run in a virtual machine with one assigned processor. The code of the application used is provided in the appendix. 
 
 Different request rates (up to 2000 requests per second) were tested on this sample server and their corresponding response rates were calculated using httpef, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. This finding followed by other benchmarks showed that the new implementation gives more consistent runtime on different iterations of a same code compared to the current CPython implementation. This consistency is a desired behavior. We suspect that this behavior is a result of the randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
 
@@ -304,6 +284,31 @@ Throughout the course of our work we came to the following conclusions:
 
 In terms of future work, we have 2 avenues of attack. First, we could use different dictionaries for different purposes. Many of the python dictionaries are small, and their keysets never change. No one is adding a new built-in function in the near future. 
 Improve performance bottlenecks illustrated by benchmarks
+
+\appendix
+\section{Tornado Application}
+Sample Tornado 2.2.1 application used for benchmark:
+ \begin{verbatim}
+import tornado.httpserver
+import tornado.ioloop
+import tornado.wsgi
+
+def application(environ, start_response):
+    status = '200 OK'
+    output = 'Hello World!' 
+    response_headers = [('Content-type', 'text/plain'),
+        ('Content-Length', str(len(output)))]
+    start_response(status, response_headers)
+    return [output]
+def main():
+    container = tornado.wsgi.WSGIContainer(application)
+    http_server = tornado.httpserver.HTTPServer(container)
+    http_server.listen(8000)
+    tornado.ioloop.IOLoop.instance().start()
+if __name__ == "__main__":
+    main()
+ \end{verbatim}
+\appendix
 
 \end{document}
 
