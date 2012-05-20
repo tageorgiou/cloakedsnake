@@ -155,7 +155,7 @@ other slots which are not immediate neighbors and not necessarily in cache.
 \section{Improvements}
 
 \subsection{Theoretical Results}
-Recently, Patrascu et al. [2] showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
+Recently, Patrascu et al. showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
 bound for a truly random function. They also showed some experimental evaluations which proved that simple tabulation on fixed input length can be fast and robust when used with linear probing and cuckoo hashing. 
 
 Linear probing is appealing because of its excellent cache behavior in comparison to the probing scheme currently utilized in Python.  Consider the Intel Core 2 Duo processor with a 64 byte cache line.  Each Python dictionary entry is 12 bytes so when Python’s current probing scheme probes another slot, it is not in the current cache line so it has to pull another cache line in from memory, but with linear probing, that next slot is most likely in the current cache line.
@@ -280,6 +280,7 @@ of the other internals such as CPython exception handler were running around
 12\% slower compared to the current implementation. On average a 4.5\% improvement in runtime was measures for running the whole benchmark suite.
 
 \begin{table}
+\centering
   \caption{Performance results on selected components of the PyBench suite.  We
     have omitted the least significant performance results in terms of percent
     change.
