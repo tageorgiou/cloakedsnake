@@ -1,0 +1,66 @@
+\documentclass{article}
+\begin{document}
+\begin{tabular} {l | c}
+\hline
+Test Name & Performance Difference \\ \hline
+NormalClassAttribute &  19.20\% \\ \hline
+SpecialClassAttribute &  18.88\% \\ \hline
+NormalInstanceAttribute &  17.77\% \\ \hline
+StringPredicates &  15.25\% \\ \hline
+UnicodePredicates &  13.82\% \\ \hline
+SimpleListManipulation &  13.03\% \\ \hline
+CompareUnicode &  11.27\% \\ \hline
+SimpleComplexArithmetic &  10.83\% \\ \hline
+SpecialInstanceAttribute &  10.52\% \\ \hline
+TryFinally &  10.35\% \\ \hline
+CreateUnicodeWithConcat &  8.52\% \\ \hline
+StringSlicing &  6.52\% \\ \hline
+CreateStringsWithConcat &  6.47\% \\ \hline
+CompareFloatsIntegers &  6.43\% \\ \hline
+SimpleListComprehensions &  6.18\% \\ \hline
+ForLoops &  6.16\% \\ \hline
+UnicodeProperties &  6.13\% \\ \hline
+UnicodeSlicing &  6.12\% \\ \hline
+IfThenElse &  5.84\% \\ \hline
+StringMappings &  5.62\% \\ \hline
+ConcatStrings &  5.57\% \\ \hline
+BuiltinFunctionCalls &  5.03\% \\ \hline
+CompareInternedStrings &  4.97\% \\ \hline
+SecondImport &  4.86\% \\ \hline
+DictWithFloatKeys &  4.76\% \\ \hline
+CompareFloats &  4.30\% \\ \hline
+Recursion &  4.16\% \\ \hline
+SimpleIntFloatArithmetic &  4.06\% \\ \hline
+SimpleIntegerArithmetic &  4.06\% \\ \hline
+DictWithStringKeys &  3.87\% \\ \hline
+CompareStrings &  3.80\% \\ \hline
+DictWithIntegerKeys &  3.51\% \\ \hline
+NestedListComprehensions &  3.00\% \\ \hline
+CompareIntegers &  2.93\% \\ \hline
+SimpleFloatArithmetic &  2.93\% \\ \hline
+SimpleDictManipulation &  2.80\% \\ \hline
+NestedForLoops &  2.80\% \\ \hline
+CompareLongs &  2.73\% \\ \hline
+SimpleLongArithmetic &  2.63\% \\ \hline
+TryExcept &  2.40\% \\ \hline
+PythonFunctionCalls &  2.00\% \\ \hline
+SecondSubmoduleImport &  1.67\% \\ \hline
+BuiltinMethodLookup &  1.66\% \\ \hline
+SmallLists &  1.32\% \\ \hline
+SmallTuples &  1.29\% \\ \hline
+PythonMethodCalls &  1.04\% \\ \hline
+ConcatUnicode &  0.87\% \\ \hline
+DictCreation &  0.81\% \\ \hline
+WithFinally &  0.56\% \\ \hline
+SecondPackageImport &  0.00\% \\ \hline
+CreateNewInstances &  0.00\% \\ \hline
+CreateInstances &  -0.54\% \\ \hline
+UnicodeMappings &  -1.27\% \\ \hline
+ListSlicing &  -2.40\% \\ \hline
+ComplexPythonFunctionCalls &  -3.55\% \\ \hline
+TupleSlicing &  -3.72\% \\ \hline
+WithRaiseExcept &  -5.89\% \\ \hline
+TryRaiseExcept &  -11.99\% \\ \hline
+Totals & 4.54\% \\ \hline
+\end{tabular}
+\end{document}
