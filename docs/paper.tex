@@ -24,7 +24,7 @@ Here we implement simple tabulation hashing with linear probing in Python dictio
 
 
 \section{Introduction}
-In this project we aim to analyze and improve the performance of Python’s dictionary or dict.  Python is an extremely popular general purpose computing language for several reasons:
+In this project we aim to analyze and improve the performance of Python's dictionary or dict.  Python is an extremely popular general purpose computing language for several reasons:
 \begin{enumerate}
  \item Clean, elegant near-pseudo code syntax leads to clear code 
  \item Widely distributed and available
@@ -38,7 +38,7 @@ However, because Python is an interpreted language it is difficult to operate on
 In order to attempt to improve the performance of the python language as a whole we plan to attempt to improve the performance of python dictionaries.
 
 \subsection{Motivation}
-Python heavily utilizes dictionary data structure for several of its internal language features. This extensive internal use of dictionaries means that a running Python program has many dictionaries active simultaneously, even in cases where the the user’s program code does not explicitly use a dictionary. 
+Python heavily utilizes dictionary data structure for several of its internal language features. This extensive internal use of dictionaries means that a running Python program has many dictionaries active simultaneously, even in cases where the user's program code does not explicitly use a dictionary. 
 
 Take for example, the following code which we ran in the interpreter:
 
@@ -81,7 +81,7 @@ have significant effects on total Python performance.
 \section{Current Python Implementation}
 
 In this section we give a brief overview of the key implementation details of
-dictionaries in CPython 2.7.3.  We should note that Python’s dictionary supports
+dictionaries in CPython 2.7.3.  We should note that Python's dictionary supports
 several different data types as keys. However as we noted earlier, the
 dictionaries underlying class instances and modules have only strings as keys.
 Therefore optimizing a dictionary which have string-only keys is crucial to the
@@ -185,7 +185,7 @@ pseudo-random number generators.
 
 After implementation and profiling, we found that dictionary table lookups had
 over twice as many level 1 cache misses with tabulation hashing than without.
-Hypothesizing that the tabulation tables were evicting other, more relavant
+Hypothesizing that the tabulation tables were evicting other, more relevant
 data from the level 1 cache.  To fix this, we inserted x86 memory prefetch
 instructions into our hash code to tell the CPU's caching system that it should
 deprioritize storing it in cache.  We used GCC's
@@ -201,7 +201,7 @@ fixed number of tables $N$ and round robin between them for every byte.  We
 found the optimal value of $N$ to be 8 experimentally.  We limited our choices
 to powers of 2 so that costly modulo operations could be avoided by using bit
 masks Figure ~\ref{fig:tables} shows the performance of different numbers of
-tabulation tables.  Eight turned out to be the sweetspot
+tabulation tables.  Eight turned out to be optimal.
  \begin{figure}[H]
    \centering
    \includegraphics[width=4in]{tables.pdf}
@@ -210,19 +210,32 @@ tabulation tables.  Eight turned out to be the sweetspot
  \end{figure}
        
 Eight tables provided the best performance.
+
+ \begin{figure}[H]
+   \centering
+   \includegraphics[width=4in]{randstring.pdf}
+   \caption{Random string performance}
+   \label{fig:randstring}
+ \end{figure}
+ \begin{figure}[H]
+   \centering
+   \includegraphics[width=4in]{seqstring.pdf}
+   \caption{Sequential string performance}
+   \label{fig:seqstring}
+ \end{figure}
+
 \subsection{Benchmarks}
 In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 Because of the heavy utilization of dictionaries in Python internals one of the valuable benchmarks is to see how the new dictionary performs on them. We used PyBench benchmark suit for this task. We saw significant improvements of around \%20 in performance of some of the internals such as the special and normal class attribute lookups and string predicates. However, at the same time some of the other internals such as CPython exception handler were running around \%12 slower compared to the current implementation. On average a \%4.5 improvement in runtime was measures for running the whole benchmark suite.
 
 \begin{table}
   \caption{Performance results on selected components of the PyBench suite.  We
-    have ommitted the least significant performace results in terms of percent
+    have omitted the least significant performance results in terms of percent
     change.
   }
 \begin{tabular}{| l | c |}
   \hline
   \textbf{Test Name} & \textbf{Performance Difference} \\ \hline
-  Test Name & Performance Difference \\ \hline
   NormalClassAttribute &  19.20\% \\ \hline
   SpecialClassAttribute &  18.88\% \\ \hline
   NormalInstanceAttribute &  17.77\% \\ \hline
@@ -235,7 +248,7 @@ Because of the heavy utilization of dictionaries in Python internals one of the 
   TryFinally &  10.35\% \\ \hline
   CreateUnicodeWithConcat &  8.52\% \\ \hline
   StringSlicing &  6.52\% \\ \hline
-  Small Performance Changes Ommitted & ... \\ \hline
+  Small Performance Changes Omitted & ... \\ \hline
   UnicodeMappings &  -1.27\% \\ \hline
   ListSlicing &  -2.40\% \\ \hline
   ComplexPythonFunctionCalls &  -3.55\% \\ \hline
@@ -250,14 +263,16 @@ PyBench showed the performance difference in each of the individual CPython inte
 
 We were interested to calculate if the new implementation of dictionary can handle more requests in a Python web server compared to the current CPython implementation. We chose Tornado web server for this task since most of the code is written in pure Python. An instance of Tornado server was run in a virtual machine with one assigned processor. The code of the application used is provided in the appendix. 
 
-Different request rates (up to 2000 requests per second) were tested on this sample server and their corresponding response rates were calculated using httpef, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. This finding followed by other benchmarks showed that the new implementation gives more consistent runtime on different iterations of a same code compared to the current CPython implementation. This consistency is a desired behavior. We suspect that this behavior is a result of the randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
+Different request rates (up to 2000 requests per second) were tested on this
+sample server and their corresponding response rates were calculated using
+httperf, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. This finding followed by other benchmarks showed that the new implementation gives more consistent runtime on different iterations of a same code compared to the current CPython implementation. This consistency is a desired behavior. We suspect that this behavior is a result of the randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
 
 As mentioned before, another set of the benchmarks that we utilized were based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=12cm]{appsbench.pdf}
-  \caption{Prcentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
+  \caption{Percentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
 \end{figure}
 
 \begin{figure}[H]
