@@ -7,11 +7,14 @@
         Pedram Razavi
 }
 \date{\today}
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
+\usepackage{setspace}
+\usepackage{fullpage}
 
 \begin{document}
 \maketitle
+\doublespace
 
 \begin{abstract}
 Here we implement simple tabulation hashing with linear probing in Python dictionary based on the recent theoretical result of Patrascu et al. Although we achieved small performance wins on the order of 4\%, we were unable to achieve significant performance wins.  The time and memory required to compute the ST hash are too large to justify the speedup garnered by switching to simple tabulation hashing and linear probing.
@@ -113,8 +116,37 @@ Eight tables provided the best performance.
 In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 Because of the heavy utilization of dictionaries in Python internals one of the valuable benchmarks is to see how the new dictionary performs on them. We used PyBench benchmark suit for this task. We saw significant improvements of around \%20 in performance of some of the internals such as the special and normal class attribute lookups and string predicates. However, at the same time some of the other internals such as CPython exception handler were running around \%12 slower compared to the current implementation. On average a \%4.5 improvement in runtime was measures for running the whole benchmark suite.
 
-[Python bmark Table]  
- 
+\begin{table}
+  \caption{Performance results on selected components of the PyBench suite.  We
+    have ommitted the least significant performace results in terms of percent
+    change.
+  }
+\begin{tabular}{| l | c |}
+  \hline
+  \textbf{Test Name} & \textbf{Performance Difference} \\ \hline
+  Test Name & Performance Difference \\ \hline
+  NormalClassAttribute &  19.20\% \\ \hline
+  SpecialClassAttribute &  18.88\% \\ \hline
+  NormalInstanceAttribute &  17.77\% \\ \hline
+  StringPredicates &  15.25\% \\ \hline
+  UnicodePredicates &  13.82\% \\ \hline
+  SimpleListManipulation &  13.03\% \\ \hline
+  CompareUnicode &  11.27\% \\ \hline
+  SimpleComplexArithmetic &  10.83\% \\ \hline
+  SpecialInstanceAttribute &  10.52\% \\ \hline
+  TryFinally &  10.35\% \\ \hline
+  CreateUnicodeWithConcat &  8.52\% \\ \hline
+  StringSlicing &  6.52\% \\ \hline
+  Small Performance Changes Ommitted & ... \\ \hline
+  UnicodeMappings &  -1.27\% \\ \hline
+  ListSlicing &  -2.40\% \\ \hline
+  ComplexPythonFunctionCalls &  -3.55\% \\ \hline
+  TupleSlicing &  -3.72\% \\ \hline
+  WithRaiseExcept &  -5.89\% \\ \hline
+  TryRaiseExcept &  -11.99\% \\ \hline
+  Totals & 4.54\% \\ \hline
+\end{tabular}
+\end{table}
 
 PyBench showed the performance difference in each of the individual CPython internals however for a more realistic picture of the performance in real world programs more extensive benchmarking of the new implementation was needed. Especially since we wanted to know the frequency of the different CPython internals in real-world applications and therefore the corresponding runtime changes. The new implementation was tested on several standard real world programs such as Tornado web server, Django web framework, html5lib and nearly 10 other real-world programs. 
 

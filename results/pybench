@@ -1,62 +1,66 @@
-NormalClassAttribute:  19.203195%
-SpecialClassAttribute:  18.888889%
-NormalInstanceAttribute:  17.777778%
-StringPredicates:  15.252976%
-UnicodePredicates:  13.827160%
-SimpleListManipulation:  13.039867%
-CompareUnicode:  11.270492%
-SimpleComplexArithmetic:  10.833333%
-SpecialInstanceAttribute:  10.520155%
-TryFinally:  10.351655%
-CreateUnicodeWithConcat:  8.529015%
-StringSlicing:  6.529162%
-CreateStringsWithConcat:  6.473102%
-CompareFloatsIntegers:  6.437988%
-SimpleListComprehensions:  6.187902%
-ForLoops:  6.166881%
-UnicodeProperties:  6.139360%
-UnicodeSlicing:  6.124339%
-IfThenElse:  5.847953%
-StringMappings:  5.627451%
-ConcatStrings:  5.570216%
-BuiltinFunctionCalls:  5.037665%
-CompareInternedStrings:  4.975124%
-SecondImport:  4.861111%
-DictWithFloatKeys:  4.761905%
-CompareFloats:  4.301075%
-Recursion:  4.166667%
-SimpleIntFloatArithmetic:  4.065041%
-SimpleIntegerArithmetic:  4.065041%
-DictWithStringKeys:  3.875969%
-CompareStrings:  3.809869%
-DictWithIntegerKeys:  3.516548%
-NestedListComprehensions:  3.003633%
-CompareIntegers:  2.932489%
-SimpleFloatArithmetic:  2.930757%
-SimpleDictManipulation:  2.807329%
-NestedForLoops:  2.807329%
-CompareLongs:  2.732240%
-SimpleLongArithmetic:  2.631579%
-TryExcept:  2.400310%
-PythonFunctionCalls:  2.000000%
-SecondSubmoduleImport:  1.676083%
-BuiltinMethodLookup:  1.666667%
-SmallLists:  1.320261%
-SmallTuples:  1.294620%
-PythonMethodCalls:  1.049934%
-ConcatUnicode:  0.877193%
-DictCreation:  0.813008%
-WithFinally:  0.564972%
-SecondPackageImport:  0.000000%
-CreateNewInstances:  0.000000%
-CreateInstances:  -0.546448%
-UnicodeMappings:  -1.279536%
-ListSlicing:  -2.404558%
-ComplexPythonFunctionCalls:  -3.550543%
-TupleSlicing:  -3.726608%
-WithRaiseExcept:  -5.896921%
-TryRaiseExcept:  -11.993383%
------------
-Before opt: 3.077000
-After opt: 2.937000
-Totals: 4.549886%
+\documentclass{article}
+\begin{document}
+\begin{tabular} {l | c}
+\hline
+Test Name & Performance Difference \\ \hline
+NormalClassAttribute &  19.20\% \\ \hline
+SpecialClassAttribute &  18.88\% \\ \hline
+NormalInstanceAttribute &  17.77\% \\ \hline
+StringPredicates &  15.25\% \\ \hline
+UnicodePredicates &  13.82\% \\ \hline
+SimpleListManipulation &  13.03\% \\ \hline
+CompareUnicode &  11.27\% \\ \hline
+SimpleComplexArithmetic &  10.83\% \\ \hline
+SpecialInstanceAttribute &  10.52\% \\ \hline
+TryFinally &  10.35\% \\ \hline
+CreateUnicodeWithConcat &  8.52\% \\ \hline
+StringSlicing &  6.52\% \\ \hline
+CreateStringsWithConcat &  6.47\% \\ \hline
+CompareFloatsIntegers &  6.43\% \\ \hline
+SimpleListComprehensions &  6.18\% \\ \hline
+ForLoops &  6.16\% \\ \hline
+UnicodeProperties &  6.13\% \\ \hline
+UnicodeSlicing &  6.12\% \\ \hline
+IfThenElse &  5.84\% \\ \hline
+StringMappings &  5.62\% \\ \hline
+ConcatStrings &  5.57\% \\ \hline
+BuiltinFunctionCalls &  5.03\% \\ \hline
+CompareInternedStrings &  4.97\% \\ \hline
+SecondImport &  4.86\% \\ \hline
+DictWithFloatKeys &  4.76\% \\ \hline
+CompareFloats &  4.30\% \\ \hline
+Recursion &  4.16\% \\ \hline
+SimpleIntFloatArithmetic &  4.06\% \\ \hline
+SimpleIntegerArithmetic &  4.06\% \\ \hline
+DictWithStringKeys &  3.87\% \\ \hline
+CompareStrings &  3.80\% \\ \hline
+DictWithIntegerKeys &  3.51\% \\ \hline
+NestedListComprehensions &  3.00\% \\ \hline
+CompareIntegers &  2.93\% \\ \hline
+SimpleFloatArithmetic &  2.93\% \\ \hline
+SimpleDictManipulation &  2.80\% \\ \hline
+NestedForLoops &  2.80\% \\ \hline
+CompareLongs &  2.73\% \\ \hline
+SimpleLongArithmetic &  2.63\% \\ \hline
+TryExcept &  2.40\% \\ \hline
+PythonFunctionCalls &  2.00\% \\ \hline
+SecondSubmoduleImport &  1.67\% \\ \hline
+BuiltinMethodLookup &  1.66\% \\ \hline
+SmallLists &  1.32\% \\ \hline
+SmallTuples &  1.29\% \\ \hline
+PythonMethodCalls &  1.04\% \\ \hline
+ConcatUnicode &  0.87\% \\ \hline
+DictCreation &  0.81\% \\ \hline
+WithFinally &  0.56\% \\ \hline
+SecondPackageImport &  0.00\% \\ \hline
+CreateNewInstances &  0.00\% \\ \hline
+CreateInstances &  -0.54\% \\ \hline
+UnicodeMappings &  -1.27\% \\ \hline
+ListSlicing &  -2.40\% \\ \hline
+ComplexPythonFunctionCalls &  -3.55\% \\ \hline
+TupleSlicing &  -3.72\% \\ \hline
+WithRaiseExcept &  -5.89\% \\ \hline
+TryRaiseExcept &  -11.99\% \\ \hline
+Totals & 4.54\% \\ \hline
+\end{tabular}
+\end{document}
