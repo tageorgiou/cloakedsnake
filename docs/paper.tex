@@ -9,6 +9,8 @@
 \date{\today}
 \documentclass[11pt]{article}
 \usepackage[pdftex]{graphicx}
+\usepackage{float}
+
 
 \begin{document}
 \maketitle
@@ -158,12 +160,29 @@ Different request rates (up to 2000 requests per second) were tested on this sam
 
 As mentioned before, another set of the benchmarks that we utilized were based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=12cm]{appsbench.pdf}
+  \caption{Prcentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=12cm]{slowpickle.png}
+  \caption{Python Pickle module benchmark. Minimum Iteration: changed from 0.705s to 0.681s: 1.04 times faster. Average iteration: changed from 0.710s to 0.686s: 1.04 times faster. Standard deviation of new implementation 2.0383 times smaller}
+\end{figure}
+
 % \begin{figure}[H]
 %   \centering
 %   \includegraphics[width=160mm]{lr-10.png}
 %   \caption{}
 % \end{figure}
 
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=160mm]{lr-10.png}
+%   \caption{}
+% \end{figure}
 
 In a couple of the programs such as pure Python Pickle (an object serialization library) and html5lib (specification parser library) we calculated an improvement of \%3 to \%4. In other cases we did not calculate an speedup but at the same time we did not find any real-world case which the new implementation performs significantly slower. These results were consistent with the previous results of PyBench that showed about \%4.5 improvement.
  
