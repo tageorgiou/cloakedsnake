@@ -280,7 +280,7 @@ cache line first rather than jumping around.
 In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 Because of the heavy utilization of dictionaries in Python internals one of the
 valuable benchmarks is to see how the new dictionary performs on them. We used
-PyBench benchmark suit for this task. We saw significant improvements of around
+PyBench benchmark suite for this task. We saw significant improvements of around
 20\% in performance of some of the internals such as the special and normal
 class attribute lookups and string predicates. However, at the same time some
 of the other internals such as CPython exception handler were running around
