@@ -42,7 +42,7 @@ Recently, with the advent of packages like numPy, sciPy and pyPy Python has bega
 
 However, because Python is an interpreted language it is difficult to operate on a similar performance level to compiled languages due to the sheer overhead of the interpreter.
 
-In order to attempt to improve the performance of the python language as a whole we plan to attempt to improve the performance of python dictionaries.
+In order to attempt to improve the performance of the Python language as a whole we plan to attempt to improve the performance of Python dictionaries.
 
 \subsection{Motivation}
 Python heavily utilizes dictionary data structure for several of its internal language features. This extensive internal use of dictionaries means that a running Python program has many dictionaries active simultaneously, even in cases where the user's program code does not explicitly use a dictionary. 
@@ -56,7 +56,7 @@ Take for example, the following code which we ran in the interpreter:
 10
 \end{verbatim}
 
-One of the features that we added to the python source was a conditional flag
+One of the features that we added to the Python source was a conditional flag
 that allowed us to view dictionary statistics (collisions, probes, accesses,
 etc.) for a given invocation of the Python binary.  With that modification we
 were able to see that this code used 92 lookups in string dictionaries and 24
@@ -104,8 +104,8 @@ rich set of comparisons ( $<=$, $>=$, $<$, $>$, $==$, $!=$) which arbitrary data
 types can provide since string type does not have these special cases.  As it
 can be seen, string-only keys can dominate the runtime of a dictionary and
 CPython uses some measures to optimize for this common case. Because of this
-importance we mostly limit ourselves to the study of new implementations of
-hashing the string type for the rest of the paper.
+importance we predominantly focus on the study of new implementations of
+hashes for the string type for the rest of the paper.
 
 The current CPython dictionary implementation uses an iterative XORed polynomial
 terms for calculating the hash of the strings. In this implementation the hash
@@ -165,13 +165,23 @@ other slots which are not immediate neighbors and not necessarily in cache.
 Recently, Patrascu et al. showed that simple tabulation hashing provides unexpectedly strong guarantees and is constant competitive with a truly random hash function for hashing with linear probing. In their paper, they showed that for simple tabulation hashing with linear probing if the table size is $m = (1 + \epsilon)n$, then the expected time per operation is $O(1/\epsilon^2)$. This new guarantee asymptotically matches the
 bound for a truly random function. They also showed some experimental evaluations which proved that simple tabulation on fixed input length can be fast and robust when used with linear probing and cuckoo hashing. 
 
-Linear probing is appealing because of its excellent cache behavior in comparison to the probing scheme currently utilized in Python.  Consider the Intel Core 2 Duo processor with a 64 byte cache line.  Each Python dictionary entry is 12 bytes so when Python’s current probing scheme probes another slot, it is not in the current cache line so it has to pull another cache line in from memory, but with linear probing, that next slot is most likely in the current cache line.
+Linear probing is appealing because of its excellent cache behavior in
+comparison to the probing scheme currently utilized in Python.  Consider the
+Intel Core 2 Duo processor with a 64 byte cache line.  Each Python dictionary
+entry is 12 bytes so when Python probes a dictionary slot, it pulls in at least
+4 more dictionary entries with it.  However, when the current probing scheme
+probes another slot, it is not in the current cache line so it has to pull
+another cache line in from memory.  With linear probing, that next slot is most likely in the current cache line.
 
-However, Patrascu et al. [2] describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
+Patrascu et al. [2] describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
 
 \subsection{Implementation Details}
+We modified the source code of CPython 2.7.3 to use simple tabulation hashing
+with linear probing.  We use a fixed number of tabulation tables and cycle between them
+for variable length strings.
+
 We prepopulated random tables in memory with random bits from random.org, which
-sources randomness form atmospheric noise in order to remove the reliance on
+sources randomness from atmospheric noise in order to remove the reliance on
 pseudo-random number generators.
       
 
@@ -201,9 +211,9 @@ over twice as many level 1 cache misses with tabulation hashing than without.
 Hypothesizing that the tabulation tables were evicting other, more relevant
 data from the level 1 cache.  To fix this, we inserted x86 memory prefetch
 instructions into our hash code to tell the CPU's caching system that it should
-deprioritize storing it in cache.  We used GCC's
+deprioritize storing the tabulation tables in cache.  We used GCC's
 \begin{tt}\_\_builtin\_prefetch(void \*addr, char rw, char locality)\end{tt}
-to do this.  However, this only yielded about a 1\% performance improvement,
+to generate these instructions.  However, this only yielded about a 1\% performance improvement,
 negligible compared to the performance improvement of different hash schemes.
 
 \section{Results}
@@ -217,10 +227,10 @@ to powers of 2 so that costly modulo operations could be avoided by using bit
 masks Figure ~\ref{fig:tables} shows the performance of different numbers of
 tabulation tables with both 1 and 2 byte indices.  Eight hash tables indexing
 every byte separately resulted in the best performance.    We believe this is due
-to the low entropy for fewer tables and too much memory bandwidth for a higher
+to the low entropy caused by fewer tables and too much memory bandwidth used by a higher
 number of tables.  The optimal result may also be an artifact of the fact that
 we were using on the order of magnitude of thousands to millions of dictionary
-keys.  Our optimal result resulted 256 64
+keys.  Our optimal result resulted using 256 64
 bit table entries in each of 8 tables using 16KB of memory.
  \begin{figure}[H]
    \centering
@@ -280,11 +290,12 @@ cache line first rather than jumping around.
 In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 Because of the heavy utilization of dictionaries in Python internals one of the
 valuable benchmarks is to see how the new dictionary performs on them. We used
-PyBench benchmark suite for this task. We saw significant improvements of around
+PyBench benchmark suite for this task. The results can be seen in Table
+~\ref{pybenchtable}.  We saw significant improvements of around
 20\% in performance of some of the internals such as the special and normal
 class attribute lookups and string predicates. However, at the same time some
 of the other internals such as CPython exception handler were running around
-12\% slower compared to the current implementation. On average a 4.5\% improvement in runtime was measures for running the whole benchmark suite.
+12\% slower compared to the current implementation. On average a 4.5\% improvement in runtime was measured for the whole benchmark suite.
 
 \begin{table}
 \centering
@@ -316,22 +327,36 @@ of the other internals such as CPython exception handler were running around
   TryRaiseExcept &  -11.99\% \\ \hline
   Totals & 4.54\% \\ \hline
 \end{tabular}
+\label{pybenchtable}
 \end{table}
 
-PyBench showed the performance difference in each of the individual CPython internals however for a more realistic picture of the performance in real world programs more extensive benchmarking of the new implementation was needed. Especially since we wanted to know the frequency of the different CPython internals in real-world applications and therefore the corresponding runtime changes. The new implementation was tested on several standard real world programs such as Tornado web server, Django web framework, html5lib and nearly 10 other real-world programs. 
+PyBench showed the performance difference in each of the individual CPython
+internals however for a more realistic picture of the performance in real world
+programs more extensive benchmarking of the new implementation was needed.
+Especially since we wanted to know the frequency of the different CPython
+internals in real-world applications and therefore the corresponding runtime
+changes. The new implementation was tested on several standard real world
+programs such as Tornado web server, Django web framework, html5lib and ten other real-world programs. 
 
 We were interested to calculate if the new implementation of dictionary can handle more requests in a Python web server compared to the current CPython implementation. We chose Tornado web server for this task since most of the code is written in pure Python. An instance of Tornado server was run in a virtual machine with one assigned processor. The code of the application used is provided in the appendix. 
 
 Different request rates (up to 2000 requests per second) were tested on this
 sample server and their corresponding response rates were calculated using
-httperf, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. This finding followed by other benchmarks showed that the new implementation gives more consistent runtime on different iterations of a same code compared to the current CPython implementation. This consistency is a desired behavior. We suspect that this behavior is a result of the randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
+httperf, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. 
 
-As mentioned before, another set of the benchmarks that we utilized were based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
+This finding as well as those by other benchmarks showed that the new
+implementation gives more consistent runtime on different iterations of a same
+code compared to the current CPython implementation. This consistency is a
+desired behavior. We suspect that this behavior is a result of the "better" randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
+
+As mentioned before, another set of the benchmarks that we utilized was based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=12cm]{appsbench.pdf}
-  \caption{Percentage of overall improvements in some real-world Python applications. Nearly none of the applications performed worse. Python Pickle and html5lib faster around \%3 to \%4. }
+  \caption{Percentage of overall improvements in some real-world Python
+  applications. Nearly none of the applications performed worse. Python Pickle
+  and html5lib faster around 3\% to 4\%. }
 \end{figure}
 
 \begin{figure}[H]
@@ -362,7 +387,11 @@ with the previous results of PyBench that showed about 4.5\% improvement.
 \section{Conclusion and future work}
 Throughout the course of our work we came to the following conclusions:
 \begin{enumerate}
-\item Hardware specific performance issues dominate at small scales: When you are attempting to work on a process that runs as fast as a hash table lookup or insertion already does, there is little room for error.  Improving hash performance with simple tabulation is not an easy task simply because any change you make will probably end up making the hash table run slower.  That said:
+\item Hardware specific performance issues dominate at small scales: When you
+are attempting to work on a process that runs as fast as a hash table lookup or
+insertion already does, there is little room for error.  Improving hash
+performance with simple tabulation is not an easy task simply because any
+change you make will probably end up making the hash function run slower.  That said:
 
 \item Simple tabulation yields slightly faster and more consistent performance: With a careful implementation simple tabulation can yield increased hash performance on linear probing work loads. Simple tabulation definitely leads to shorter chain lengths, however, those shorter chain lengths don’t always justify the performance cost.
 
@@ -370,7 +399,8 @@ Throughout the course of our work we came to the following conclusions:
 
 \end{enumerate}
 
-In terms of future work, we have 2 avenues of attack. First, we could use different dictionaries for different purposes. Many of the python dictionaries are small, and their keysets never change. No one is adding a new built-in function in the near future. 
+In terms of future work, we have 2 avenues of attack. First, we could use different dictionaries for different purposes. Many of the Python dictionaries are small, and their keysets never change. No one is adding a new built-in function in the near future. 
+
 Improve performance bottlenecks illustrated by benchmarks
 
 
