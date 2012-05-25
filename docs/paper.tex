@@ -22,10 +22,13 @@
 Here we implement simple tabulation hashing with linear probing in Python
 dictionary based on the recent theoretical result of P\v{a}tra\c{s}cu et al. Although
 we achieved significant performance wins on synthetic benchmarks, on real
-benchmarks our wins were only on the order of 4\%.  When viewed as a whole, the
+benchmarks our wins were only on the order of 4\% due to interpreter overhead.
+Linear probing with sample tabulation hashing does improve Python performance
+and should be looked at as a replacement scheme.  As a whole, the
 extra memory bandwidth
-and latency required to compute the simple tabulation hash are too large to
-justify the dictionary speedup garnered by switching to simple tabulation hashing and linear probing.
+and latency required to compute the simple tabulation hash negates some of the
+performance improvement, but if they were able to be further mitigated, the new scheme
+should provide more than a 4\% improvement, making it even more worthwhile.
 \end{abstract}
 
 
@@ -114,7 +117,7 @@ instance: hash("6.851") = 7824665118634166871 and hash("6.852") =
 7824665118634166868. This behavior gives good results for sequential strings
 which is a common case. When the table size is $2^i$ taking the least
 significant $i$ bits as the index can populate the table without a lot of
-collisions. This approach gives a better than random results in this case and is
+collisions. This approach gives better than random results in this case and is
 also simple and fast to compute.
 
 On the other hand this hashing strategy has the tendency to fill contiguous
@@ -138,8 +141,8 @@ while (<slot is full> && <item in slot does not equal the key>) {
 
 Based on this new method the probe sequence will depend on nearly all the bits
 of a hash value. We should note that the value of  perturb shift (currently 5)
-is crucial for a good probing behavior. Since it should be small enough so that
-all the significant bits have an  effect on the probe sequence but at the same
+is crucial for a good probing behavior.  It should be small enough so that
+all the significant bits have an effect on the probe sequence but at the same
 time it should be large enough so that in really bad cases the high-order hash
 bits can affect the earlier iterations.
 
@@ -198,8 +201,9 @@ pseudo-random number generators.
     }
        \end{verbatim}
 
-We also experimented with indexing using every pair of bytes in the string and
-using $2^16$ tabulation table entries.
+We also experimented with indexing using every pair of bytes in the string,
+treating them as 16bit integers and
+using $2^{16}$ tabulation table entries.
 
 To implement linear probing, we modified Python's dictionary code to start at
 the table entry defined by the hash value and then search sequentially until it
@@ -218,6 +222,9 @@ negligible compared to the performance improvement of different hash schemes.
 
 \section{Results}
 
+In order to analyze the result of this new dictionary we measured three main
+metrics. First, we compared the performance of the simple tabulation hashing
+with Python’s current hashing scheme on random and sequential strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 \subsection{Table Number Tuning}
 
 For simple tabulation hashing with variable length strings, we decided to use a
@@ -287,9 +294,8 @@ cache line first rather than jumping around.
 \end{figure}
 
 \subsection{Benchmarks}
-In order to analyze the result of this new dictionary we measured three main metrics. First, we compared the performance of the simple tabulation hashing with Python’s current hashing scheme on random strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
-Because of the heavy utilization of dictionaries in Python internals one of the
-valuable benchmarks is to see how the new dictionary performs on them. We used
+Due to the heavy utilization of dictionaries in Python internals, one of the
+valuable benchmarks is to see how the new dictionary performs with them them. We used
 PyBench benchmark suite for this task. The results can be seen in Table
 ~\ref{pybenchtable}.  We saw significant improvements of around
 20\% in performance of some of the internals such as the special and normal
@@ -393,7 +399,11 @@ insertion already does, there is little room for error.  Improving hash
 performance with simple tabulation is not an easy task simply because any
 change you make will probably end up making the hash function run slower.  That said:
 
-\item Simple tabulation yields slightly faster and more consistent performance: With a careful implementation simple tabulation can yield increased hash performance on linear probing work loads. Simple tabulation definitely leads to shorter chain lengths, however, those shorter chain lengths don’t always justify the performance cost.
+\item Simple tabulation yields slightly faster and more consistent performance:
+With a careful implementation simple tabulation can yield increased hash
+performance on linear probing work loads. Simple tabulation definitely leads to
+shorter chain lengths, however, those shorter chain lengths don’t always
+justify the performance cost in all cases.
 
 \item Memory latency presents serious but workable issues.  Doing a look up in the simple-tabulation table \emph{requires} a random memory access, exactly what we were trying to avoid. With careful memory management we can maintain good performance, but a solution requires careful thought about cache sizes and special purpose compiler directives.
 
