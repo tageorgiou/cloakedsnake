@@ -18,10 +18,10 @@
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{A Reimplementation of Python’s dict using Simple Tabulation Hashing and Linear Probing}
+\title{A Reimplementation of Python's dict using Simple Tabulation Hashing and Linear Probing}
 
 % a short form should be given in case it is too long for the running head
-\titlerunning{A Reimplementation of Python’s dict}
+\titlerunning{A Reimplementation of Python's dict}
 
 % the name(s) of the author(s) follow(s) next
 \author{Russell Cohen\and Thomas Georgiou\and Pedram Razavi}
@@ -43,13 +43,13 @@ Here we implement simple tabulation hashing with linear probing in Python
 dictionary based on the recent theoretical result of P\v{a}tra\c{s}cu et al. Although
 we achieved significant performance wins on synthetic benchmarks, on real
 benchmarks our wins were only on the order of 4\% due to interpreter overhead.
-Linear probing with sample tabulation hashing does improve Python performance
+Linear probing with simple tabulation hashing does improve Python performance
 and should be looked at as a replacement scheme.  As a whole, the
 extra memory bandwidth
-and latency required to compute the simple tabulation hash negates some of the
-performance improvement, but if they were able to be further mitigated, the new scheme
+and latency required to compute the tabulation hash negates some of the
+performance improvements, but if they were able to be further mitigated, the new scheme
 should provide more than a 4\% improvement, making it even more worthwhile.
-\keywords{Hashing, Simple Tabulation}
+\keywords{Hash Function, Simple Tabulation, Linear Probing, Python Dictionary}
 \end{abstract}
 
 
@@ -62,11 +62,9 @@ dictionary or dict by changing its underlying implementation.  Python \cite{pyth
  \item Large quantity of external libraries for specific features 
 \end{enumerate}
 
-Recently, with the advent of packages like numPy, sciPy and pyPy Python has began to also be used (with questionable merit) as a performance computing language due to its ease of use.
+Recently, with the advent of packages such as NumPy, SciPy, and PyPy Python has began to also be used (with questionable merit) as a performance computing language due to its ease of use. However, because Python is an interpreted language it is difficult to operate on a similar performance level to compiled languages due to the sheer overhead of the interpreter.
 
-However, because Python is an interpreted language it is difficult to operate on a similar performance level to compiled languages due to the sheer overhead of the interpreter.
-
-In order to attempt to improve the performance of the Python language as a whole we plan to attempt to improve the performance of Python dictionaries.
+In order to enhance the performance of the Python language as a whole we plan to improve the performance of built-in Python dictionary, an associative array implementation which is used to store (\textit{key, value}) pairs.
 
 \subsection{Motivation}
 Python heavily utilizes dictionary data structure for several of its internal language features. This extensive internal use of dictionaries means that a running Python program has many dictionaries active simultaneously, even in cases where the user's program code does not explicitly use a dictionary. 
@@ -85,7 +83,7 @@ that allowed us to view dictionary statistics (collisions, probes, accesses,
 etc.) for a given invocation of the Python binary.  With that modification we
 were able to see that this code used 92 lookups in string dictionaries and 24
 lookups in general purpose dictionaries for a total of 116 dictionary hits. 116
-hits in a 3 line piece of code which never uses dictionaries explicitly is quite
+hits in a 3-line piece of code which never uses dictionaries explicitly is quite
 significant.  We explain this extensive dictionary usage below.
 
 For instance, a dictionary can be instantiated to pass keyword arguments to a
@@ -112,7 +110,8 @@ have significant effects on total Python performance.
 \section{Current Python Implementation}
 
 In this section we give a brief overview of the key implementation details of
-dictionaries in CPython 2.7.3 \cite{python27}.  We should note that Python's dictionary supports
+dictionaries in CPython 2.7.3 \cite{python27}, the default and most-widely used implementation
+of Python which is written in C.  We should note that Python's dictionary supports
 several different data types as keys. However, as we noted earlier, the
 dictionaries underlying class instances and modules have only strings as keys.
 Therefore optimizing a dictionary which have string-only keys is crucial to the
@@ -134,7 +133,7 @@ hashes for the string type for the rest of the paper.
 The current CPython dictionary implementation uses an iterative XORed polynomial
 terms for calculating the hash of the strings. In this implementation the hash
 value for sequential strings differ only in the least significant bits, for
-instance: hash("6.851") = 7824665118634166871 and hash("6.852") =
+instance: hash(``6.851'') = 7824665118634166871 and hash(``6.852'') =
 7824665118634166868. This behavior gives good results for sequential strings
 which is a common case. When the table size is $2^i$ taking the least
 significant $i$ bits as the index can populate the table without a lot of
@@ -142,21 +141,21 @@ collisions. This approach gives better than random results in this case and is
 also simple and fast to compute.
 
 On the other hand, this hashing strategy has the tendency to fill contiguous
-slots of the hash table. CPython tries to solve this behavior by utilizing a
-good collision resolution strategy. The collision resolution strategy currently
-used is open addressing with a custom non-linear probing scheme. In this scheme
+slots of the hash table. CPython tries to remedy this issue by utilizing a
+reliable collision resolution strategy. The collision resolution strategy currently
+used is open addressing combined with a custom non-linear probing mechanism. In this scheme
 CPython uses quadratic probing based on this function: $j = (5j + 1) \bmod 2^i$
-where $0<j<2^i-1$. This recurrence alone is not enough for a better behavior
-since again it behaves the same as linear-probing for some keys since it scans
-the table entries in a fixed order. To overcome this issue CPython also uses the
-most significant bits of the hash value with the following code snippet:
+where $0<j<2^i-1$. This recurrence alone is not enough to achieve a faster runtime. 
+For a set of keys, this strategy behaves the same as linear-probing because it scans
+the table entries in a fixed order. To overcome this problem, CPython also uses the
+most significant bits of the hash value by using the following code snippet:
 
 \begin{verbatim}
 slot = hash;
 perturb = hash;
-while (<slot is full> && <item in slot does not equal the key>) {
-       slot = (5*slot) + 1 + perturb;
-       perturb >>= 5;
+while (<slot is full> AND <item in slot does not equal the key>) {
+       slot = (5 * slot) + 1 + perturb;
+       perturb = (perturb >> 5); // Shifted right by 5 bits
 }
 \end{verbatim}
 
@@ -164,24 +163,24 @@ Based on this new method the probe sequence will depend on nearly all the bits
 of a hash value. We should note that the value of  perturb shift (currently 5)
 is crucial for a good probing behavior.  It should be small enough so that
 all the significant bits have an effect on the probe sequence but at the same
-time it should be large enough so that in really bad cases the high-order hash
+time, it should be large enough so that in collision-prone cases the high-order hash
 bits can affect the earlier iterations.
 
 CPython initializes its table with 8 slots. The resizing strategy is based on a
 load factor invariant. Whenever there are $n$ keys in the dictionary, there must
 be at least $3n/2$ slots in the table. This load factor is to keep the table
 sparse and put a bound on the number of collisions that can happen. CPython
-resizes the size of table whenever the load factor invariant gets violated. It
+resizes a table whenever the load factor invariant gets violated. It
 quadruples the size when there are less than 50,000 keys in the table and
 doubles the size otherwise. 
 
 Overall, the design of CPython dictionary is simple and is optimized for more
-common cases such as sequential strings. Since it utilizes quadratic probing
+common cases such as retrieval of sequential strings. Since it utilizes quadratic probing
 with perturbation, even if a data type does not provide a good hash function,
-the table still gets populated with with short chain lengths.  On the other hand
-there are some behaviors which can be improved. For instance there is a bad
-cache locality because for probing a slot the table might need to jump to the
-other slots which are not immediate neighbors and not necessarily in cache. 
+the table still gets populated with short chain lengths. However, there is still more room for 
+improvements and optimizations. For instance, the current approach incurs suboptimal cache locality because probing a single
+slot might require jumping to the other slots which are not its immediate 
+neighbors and consequently, not necessarily stored in the cache. 
 
 \section{Improvements}
 
@@ -197,7 +196,7 @@ entry is 12 bytes so when Python probes a dictionary slot, it pulls in at least
 probes another slot, it is not in the current cache line so it has to pull
 another cache line in from memory.  With linear probing, that next slot is most likely in the current cache line.
 
-P\v{a}tra\c{s}cu et al. \cite{mihai} describe simple tabulation hashing for fixed key widths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing so we will have to be careful about how to implement this. In the following section we explain the implementation details of our approach to these problems.
+P\v{a}tra\c{s}cu et al. \cite{mihai} describe simple tabulation hashing for fixed key lengths.  For implementing this new hashing scheme, first we needed to figure out a variant of simple tabulation hashing for variable length strings that does not require a table for every possible index (we could potentially cycle through a fixed set of tables).  Performing table lookups is potentially an expensive operation with lots of cache hits mitigating the better cache behavior of linear probing, therefore we have to be careful about how it will be implemented. In the following section we explain the implementation details of our approach to these problems.
 
 \subsection{Implementation Details}
 We modified the source code of CPython 2.7.3 to use simple tabulation hashing
@@ -209,18 +208,18 @@ sources randomness from atmospheric noise in order to remove the reliance on
 pseudo-random number generators.
       
 
-      Following is an excerpt from our hashing code.  We use bit tricks in
-      order to prevent costly modulo instructions.  For each byte in the
-      string, we construct an index by adding the byte value and a table offset
-      together.  Then we lookup the value in a large table of random 64 bit
-      longs and then XOR it with the previous result in the chain of XORs.
+Following is an excerpt from our hashing code.  We use bit tricks in
+order to prevent costly modulo instructions.  For each byte in the
+string, we construct an index by adding the byte value and a table offset
+together.  Then we lookup the value in a large table of random 64 bit
+longs and then XOR it with the previous result in the chain of XORs.
 
-       \begin{verbatim}
-    while (--len >= 0) {
-        register long index = (*p++) | ((len&TABLE_MASK)<<8);
-        x = x ^ RAND_TABLE_NAME[index];
-    }
-       \end{verbatim}
+\begin{verbatim}
+while (--len >= 0) {
+  register long index = (*p++) | ((len & TABLE_MASK) << 8);
+  x = x ^ RAND_TABLE_NAME[index];
+}
+\end{verbatim}
 
 We also experimented with indexing using every pair of bytes in the string,
 treating them as 16bit integers and
@@ -229,6 +228,7 @@ using $2^{16}$ tabulation table entries.
 To implement linear probing, we modified Python's dictionary code to start at
 the table entry defined by the hash value and then search sequentially until it
 finds the item it is looking for or an empty cell.
+
 \subsubsection{Optimizations}
 
 After implementation and profiling, we found that dictionary table lookups had
@@ -245,7 +245,7 @@ negligible compared to the performance improvement of different hash schemes.
 
 In order to analyze the result of this new dictionary we measured three main
 metrics. First, we compared the performance of the simple tabulation hashing
-with Python’s current hashing scheme on random and sequential strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
+with Python's current hashing scheme on random and sequential strings. Second, we measured the number of probes and collisions and overall the quality of our dictionary on structured and unstructured inputs. Finally, in this section  we show some of the total time spent in dictionary operations by using a set of general Python benchmarks and some real-world programs.
 \subsection{Table Number Tuning}
 
 For simple tabulation hashing with variable length strings, we decided to use a
@@ -258,8 +258,7 @@ every byte separately resulted in the best performance.    We believe this is du
 to the low entropy caused by fewer tables and too much memory bandwidth used by a higher
 number of tables.  The optimal result may also be an artifact of the fact that
 we were using on the order of magnitude of thousands to millions of dictionary
-keys.  Our optimal result resulted using 256 64
-bit table entries in each of 8 tables using 16KB of memory.
+keys.  Our optimal result resulted using 256 64-bit table entries in each of 8 tables using 16KB of memory.
  \begin{figure}
    \centering
    \includegraphics[width=4.1in]{tables.pdf}
@@ -332,7 +331,7 @@ cache line first rather than jumping around.
 
 \subsection{Benchmarks}
 Due to the heavy utilization of dictionaries in Python internals, one of the
-valuable benchmarks is to see how the new dictionary performs with them them. We used
+valuable benchmarks is to see how the new dictionary performs with them. We used
 PyBench benchmark suite \cite{pybench} for this task. The results can be seen in Table
 ~\ref{pybenchtable}.  We saw significant improvements of around
 20\% in performance of some of the internals such as the special and normal
@@ -374,7 +373,7 @@ of the other internals such as CPython exception handler were running around
 \end{table}
 
 PyBench showed the performance difference in each of the individual CPython
-internals however for a more realistic picture of the performance in real world
+internals; however, for a more realistic picture of the performance in real world
 programs more extensive benchmarking of the new implementation was needed.
 Especially since we wanted to know the frequency of the different CPython
 internals in real-world applications and therefore the corresponding runtime
@@ -385,14 +384,14 @@ We were interested to calculate if the new implementation of dictionary can hand
 
 Different request rates (up to 2000 requests per second) were tested on this
 sample server and their corresponding response rates were calculated using
-httperf, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar however the new implementation showed a smaller standard deviation in the response rates. 
+httperf, a HTTP performance measurement tool. Considering the variance of request rates on different iterations of the test, we could not find any significant improvement of the response rate of the new implementation. We found that on the average performance was similar, however, the new implementation showed a smaller standard deviation in the response rates. 
 
 This finding as well as those by other benchmarks showed that the new
 implementation gives more consistent runtime on different iterations of a same
 code compared to the current CPython implementation. This consistency is a
 desired behavior. We suspect that this behavior is a result of the ``better'' randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
 
-As mentioned before, another set of the benchmarks \cite{bench_suite} that we utilized was based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications is indicated in Fig.~\ref{fig:suite}.
+As mentioned before, another set of the benchmarks \cite{bench_suite} that we utilized was based on standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications is indicated in Fig.~\ref{fig:suite}.
 
 \begin{figure}[!ht]
   \centering
@@ -430,7 +429,7 @@ change you make will probably end up making the hash function run slower.  That 
 \item Simple tabulation yields slightly faster and more consistent performance:
 With a careful implementation simple tabulation can yield increased hash
 performance on linear probing work loads. Simple tabulation definitely leads to
-shorter chain lengths, however, those shorter chain lengths don’t always
+shorter chain lengths, however, those shorter chain lengths do not always
 justify the performance cost in all cases.
 
 \item Memory latency presents serious but workable issues.  Doing a look up in the simple-tabulation table \emph{requires} a random memory access, exactly what we were trying to avoid. With careful memory management we can maintain good performance, but a solution requires careful thought about cache sizes and special purpose compiler directives.
