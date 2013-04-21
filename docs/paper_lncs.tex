@@ -26,7 +26,7 @@
 % the name(s) of the author(s) follow(s) next
 \author{Russell Cohen\and Thomas Georgiou\and Pedram Razavi}
 %
-\authorrunning{A Reimplementation of Python’s dict}
+\authorrunning{R. Cohen, T. Georgiou, P. Razavi}
 % (feature abused for this document to repeat the title also on left hand pages)
 
 % the affiliations are given next; don't give your e-mail address
@@ -392,37 +392,28 @@ implementation gives more consistent runtime on different iterations of a same
 code compared to the current CPython implementation. This consistency is a
 desired behavior. We suspect that this behavior is a result of the ``better'' randomness of hash values in simple tabulation hashing and also the smaller average chain lengths.
 
-As mentioned before, another set of the benchmarks \cite{bench_suite} that we utilized was based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications were recoded as shown in the figures.
+As mentioned before, another set of the benchmarks \cite{bench_suite} that we utilized was based on different standard real-world Python applications. We ran and timed the performance of the new implementation and CPython 2.7.3 side by side using the Python-Mirrors suite. The performance of more than ten applications is indicated in Fig.~\ref{fig:suite}.
 
-\begin{figure}
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=12cm]{appsbench.pdf}
   \caption{Percentage of overall improvements in some real-world Python
   applications. Nearly none of the applications performed worse. Python Pickle
   and html5lib faster around 3\% to 4\%. }
+  \label{fig:suite}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=12cm]{slowpickle.png}
   \caption{Python Pickle module benchmark. Minimum Iteration: changed from 0.705s to 0.681s: 1.04 times faster. Average iteration: changed from 0.710s to 0.686s: 1.04 times faster. Standard deviation of new implementation 2.0383 times smaller}
+  \label{fig:pickle}
 \end{figure}
 
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=160mm]{lr-10.png}
-%   \caption{}
-% \end{figure}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=160mm]{lr-10.png}
-%   \caption{}
-% \end{figure}
 
 In a couple of the programs such as pure Python Pickle (an object serialization
 library) and html5lib (specification parser library) we calculated an
-improvement of 3\% to 4\%. In other cases we did not calculate an speedup but
+improvement of 3\% to 4\% (Fig.~\ref{fig:pickle}). In other cases we did not calculate an speedup but
 at the same time we did not find any real-world case which the new
 implementation performs significantly slower. These results were consistent
 with the previous results of PyBench that showed about 4.5\% improvement.
