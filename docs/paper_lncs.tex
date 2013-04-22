@@ -448,6 +448,20 @@ adding random tables into hardware as a ROM.  We found that we only needed 16KB 
 cost in ROM given that processors have MBs of higher level caches nowadays.  An x86 instruction set extension providing access to random tables would benefit numerous applications that use dictionaries as a core data structures.
 
 Overall, we suggest that the Python community should consider simple tabulation hashing with linear probing as a better implementation of Python's \textbf{dict} due to realizable performance improvements of at least 4\% and lessened performance variation.  In addition, if the tables are randomized at interpreter startup, the potential for malicious attacks against dictionary performance could be remedied.
+
+
+\vspace{0.2in}
+
+
+\textbf{Acknowledgment.} We thank Erik Demaine for all his help and guidance. 
+
+
+\vspace{0.2in}
+
+
+Source code available at \url{https://github.com/tageorgiou/cloakedsnake}
+
+
 \bibliography{references}{}
 \bibliographystyle{plain}
 
