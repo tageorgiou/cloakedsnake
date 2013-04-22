@@ -200,12 +200,11 @@ P\v{a}tra\c{s}cu et al. \cite{mihai} describe simple tabulation hashing for fixe
 \subsection{Implementation Details}
 We modified the source code of CPython 2.7.3 to use simple tabulation hashing
 with linear probing.  We use a fixed number of tabulation tables and cycle between them
-for variable length strings.
+for variable length strings. This does not provide the same level of theoretical guarantees for strings with length longer than the number of tables we have but empirically provides good results.
 
 We prepopulated random tables in memory with random bits from random.org, which
 sources randomness from atmospheric noise in order to remove the reliance on
 pseudo-random number generators.
-      
 
 Following is an excerpt from our hashing code.  We use bit tricks in
 order to prevent costly modulo instructions.  For each byte in the
@@ -222,7 +221,7 @@ while (--len >= 0) {
 
 We also experimented with indexing using every pair of bytes in the string,
 treating them as 16bit integers and
-using $2^{16}$ tabulation table entries.
+using $2^{16}$ tabulation table entries but results were worse due to increased memory thrashing.
 
 To implement linear probing, we modified Python's dictionary code to start at
 the table entry defined by the hash value and then search sequentially until it
@@ -232,12 +231,11 @@ finds the item it is looking for or an empty cell.
 
 After implementation and profiling, we found that dictionary table lookups had
 over twice as many level 1 cache misses with tabulation hashing than without.
-Hypothesizing that the tabulation tables were evicting other, more relevant
-data from the level 1 cache.  To fix this, we inserted x86 memory prefetch
+Hypothesizing that the cache misses were due to the tabulation tables not being in processor cache (16KB tables, 32KB L1 data, 3MB L2), we inserted x86 memory prefetch
 instructions into our hash code to tell the CPU's caching system that it should
-deprioritize storing the tabulation tables in cache.  We used GCC's
+prioritize storing the tabulation tables in cache.  We used GCC's
 \begin{tt}\_\_builtin\_prefetch(void \*addr, char rw, char locality)\end{tt} \cite{prefetch}
-to generate these instructions.  However, this only yielded about a 1\% performance improvement,
+to generate these instructions.  However, this only yielded about a 1\% performance improvement in synthetic benchmarks,
 negligible compared to the performance improvement of different hash schemes.
 
 \section{Results}
@@ -417,28 +415,24 @@ implementation performs significantly slower. These results were consistent
 with the previous results of PyBench that showed about 4.5\% improvement.
  
 \section{Conclusion and future work}
-Throughout the course of our work we came to the following conclusions:
-\begin{enumerate}
-\item Hardware specific performance issues dominate at small scales: When you
-are attempting to work on a process that runs as fast as a hash table lookup or
-insertion already does, there is little room for error.  Improving hash
-performance with simple tabulation is not an easy task simply because any
-change you make will probably end up making the hash function run slower.  That said:
+%Throughout the course of our work we came to the following conclusions:
+%\begin{enumerate}
+%\item Hardware specific performance issues dominate at small scales: When you
+%are attempting to work on a process that runs as fast as a hash table lookup or
+%insertion already does, there is little room for error.  Improving hash
+%performance with simple tabulation is not an easy task simply because any
+%change you make will probably end up making the hash function run slower.  That said:
 
-\item Simple tabulation yields slightly faster and more consistent performance:
-With a careful implementation simple tabulation can yield increased hash
-performance on linear probing work loads. Simple tabulation definitely leads to
-shorter chain lengths, however, those shorter chain lengths do not always
-justify the performance cost in all cases.
 
-\item Memory latency presents serious but workable issues.  Doing a look up in the simple-tabulation table \emph{requires} a random memory access, exactly what we were trying to avoid. With careful memory management we can maintain good performance, but a solution requires careful thought about cache sizes and special purpose compiler directives.
+Simple tabulation yields faster and more consistent hash performance than Python's current implementation  despite the increased number of memory accesses needed to compute the simple tabulation hash.  Our results show that performance improvements of up to 19\% are realizable in certain benchmarks with heavy lookup workloads such as class attribute lookups.  Overall improvement real python code performance improved by about 4\%.
+%Simple tabulation definitely leads to shorter chain lengths, however, those shorter chain lengths do not %always justify the performance cost in all cases.
 
-\end{enumerate}
+%Memory latency presents the most serious perofmrance issue.  Doing a look up in the simple-tabulation %table \emph{requires} a random memory access, exactly what we were trying to avoid. With careful memory %management we can maintain good performance, but a solution requires careful thought about cache sizes %and special purpose compiler directives.
 
 In terms of future work, we have 2 avenues of attack. First, we could use
 different dictionaries for different purposes. Many of the Python dictionaries
 are small, and their keysets never change. New built in functions are not added
-during the runtime of the program and thus they could use perfect hashing.
+during the runtime of the program and thus they could use perfect hashing to improve lookups.
 
 Second, we could improve the performance bottlenecks illustrated by benchmarks.
 These mainly consist of the extra time and memory bandwith and latency cost for
@@ -448,42 +442,14 @@ be able to achieve more real world gains.  We could also look into applying a
 modifying of the perturbation trick currently used in Python for quadratic
 probing.
 
-
 Given the strong performance of simple tabulation hashing and the only downside
-being the cost of memory lookups, processor manufacturers should look into
-adding random tables into hardware as a ROM.  We found that for what we found
-optimal for Python, we only needed 16KB of randomness.  This would be a trivial
-cost in ROM given that processors have MBs of higher level caches nowadays.
+being the cost of memory lookups hampering performance, processor manufacturers should look into
+adding random tables into hardware as a ROM.  We found that we only needed 16KB of randomness to acheive our 4\% overall performance gains for Python. This would be a trivial
+cost in ROM given that processors have MBs of higher level caches nowadays.  An x86 instruction set extension providing access to random tables would benefit numerous applications that use dictionaries as a core data structures.
 
+Overall, we suggest that the Python community should consider simple tabulation hashing with linear probing as a better implementation of Python's \textbf{dict} due to realizable performance improvements of at least 4\% and lessened performance variation.  In addition, if the tables are randomized at interpreter startup, the potential for malicious attacks against dictionary performance could be remedied.
 \bibliography{references}{}
 \bibliographystyle{plain}
-
-\appendix
-\newpage
-\section*{Appendix: Tornado Application}
-Sample Tornado 2.2.1 application used for benchmark:
- \begin{verbatim}
-import tornado.httpserver
-import tornado.ioloop
-import tornado.wsgi
-
-def application(environ, start_response):
-    status = '200 OK'
-    output = 'Hello World!' 
-    response_headers = [('Content-type', 'text/plain'),
-        ('Content-Length', str(len(output)))]
-    start_response(status, response_headers)
-    return [output]
-def main():
-    container = tornado.wsgi.WSGIContainer(application)
-    http_server = tornado.httpserver.HTTPServer(container)
-    http_server.listen(8000)
-    tornado.ioloop.IOLoop.instance().start()
-if __name__ == "__main__":
-    main()
- \end{verbatim}
-\appendix
-
 
 \end{document}
 
