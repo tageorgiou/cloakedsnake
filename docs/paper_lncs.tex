@@ -39,11 +39,10 @@
 
 
 \begin{abstract}
-Here we implement simple tabulation hashing with linear probing in Python
-dictionary based on the recent theoretical result of P\v{a}tra\c{s}cu et al. Although
-we achieved significant performance wins on synthetic benchmarks, on real
-benchmarks our wins were only on the order of 4\% due to interpreter overhead.
-Linear probing with simple tabulation hashing does improve Python performance
+We reimplement the Python dictionary using simple tabulation hashing with linear probing based on the recent theoretical result of P\v{a}tra\c{s}cu et al. This hashing scheme provides expected constant time per operation in theory and we analyze its performance in practice compared to existing schemes.
+Our new implementation of Python's \textbf{dict} achieves significant performance wins on synthetic benchmarks.  
+Overall Python performance on real world benchmarks improves by about 4\%.
+Using linear probing with simple tabulation hashing does improve Python performance
 and should be looked at as a replacement scheme.  As a whole, the
 extra memory bandwidth
 and latency required to compute the tabulation hash negates some of the
